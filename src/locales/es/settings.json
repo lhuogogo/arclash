@@ -3,20 +3,31 @@
     "actions": {
       "manual": "Manual de uso",
       "telegram": "Canal de Telegram",
-      "github": "Dirección del proyecto en GitHub"
+      "github": "Dirección del proyecto en GitHub",
+      "resetSettings": "Restablecer ajustes"
     },
     "actionsGroupLabel": "Enlaces de configuración",
-    "title": "Ajustes"
+    "title": "Ajustes",
+    "notifications": {
+      "resetPlaceholder": "El restablecimiento aún no está implementado"
+    },
+    "nav": {
+      "system": "Sistema",
+      "basic": "Básico",
+      "theme": "Tema",
+      "advanced": "Avanzado"
+    }
   },
   "sections": {
     "system": {
-      "title": "Ajustes del sistema",
+      "title": "Sistema",
       "toggles": {
         "tunMode": "Modo de interfaz virtual (TUN)",
         "systemProxy": "Proxy del sistema"
       },
       "tooltips": {
-        "silentStart": "El programa se ejecutará en segundo plano al iniciarse y no mostrará el panel."
+        "silentStart": "El programa se ejecutará en segundo plano al iniciarse y no mostrará el panel.",
+        "autoLaunch": "Iniciar ArClash automáticamente al iniciar sesión"
       },
       "fields": {
         "autoLaunch": "Inicio automático",
@@ -140,7 +151,9 @@
           "networkInterface": "Interfaz de red",
           "unifiedDelay": "Al habilitar la latencia unificada, se realizarán dos pruebas de latencia para eliminar las diferencias de latencia entre diferentes tipos de nodos causadas por el handshake de conexión, etc.",
           "logLevel": "Solo se aplica al archivo de registro del núcleo en la carpeta Service del directorio de registros.",
-          "openUwpTool": "A partir de Windows 8, las aplicaciones UWP (como la Tienda de Microsoft) tienen restricciones para acceder directamente a los servicios de red del host local. Use esta herramienta para evitar esta restricción."
+          "openUwpTool": "A partir de Windows 8, las aplicaciones UWP (como la Tienda de Microsoft) tienen restricciones para acceder directamente a los servicios de red del host local. Use esta herramienta para evitar esta restricción.",
+          "externalController": "mihomo escucha en un puerto HTTP de control para interfaces web y herramientas externas; el control desde ArClash no cambia",
+          "allowLan": "Permitir que otros dispositivos de la red local se conecten a través del proxy de este equipo"
         },
         "options": {
           "logLevel": {
@@ -152,12 +165,19 @@
           }
         }
       }
+    },
+    "theme": {
+      "title": "Tema"
     }
   },
   "components": {
+    "arkSwitch": {
+      "on": "Sí",
+      "off": "No"
+    },
     "verge": {
       "basic": {
-        "title": "Ajustes básicos de Verge",
+        "title": "Básico",
         "actions": {
           "browse": "Examinar"
         },
@@ -176,11 +196,13 @@
           "themeSetting": "Configuración de tema",
           "layoutSetting": "Configuración de la interfaz",
           "misc": "Ajustes varios",
-          "hotkeySetting": "Configuración de atajos de teclado"
+          "hotkeySetting": "Configuración de atajos de teclado",
+          "backupSetting": "Configuración de copia de seguridad",
+          "runtimeConfig": "Configuración actual"
         }
       },
       "advanced": {
-        "title": "Ajustes avanzados de Verge",
+        "title": "Avanzado",
         "tooltips": {
           "backupInfo": "Soporte para la copia de seguridad de archivos de configuración a través de WebDAV",
           "openConfDir": "Si el software no funciona correctamente, !realice una copia de seguridad! y elimine todos los archivos de esta carpeta, luego reinicie el software.",
@@ -199,12 +221,13 @@
           "openConfDir": "Directorio de configuración",
           "openCoreDir": "Directorio del núcleo",
           "openLogsDir": "Directorio de registros",
+          "openDirMenu": "Abrir carpeta",
           "checkUpdates": "Comprobar actualizaciones",
           "openDevTools": "Abrir herramientas de desarrollo",
           "liteModeSettings": "Configuración del modo ligero",
           "exit": "Salir",
           "exportDiagnostics": "Exportar información de diagnóstico",
-          "vergeVersion": "Versión de Verge"
+          "vergeVersion": "Versión de ArClash"
         }
       },
       "theme": {
@@ -672,11 +695,11 @@
         "coreAlreadyRunning": "No se puede iniciar el núcleo: ya hay un proceso del núcleo en ejecución. Cierre la aplicación correspondiente o finalice el proceso restante y vuelva a intentarlo. Si el problema persiste, reinicie el equipo."
       },
       "sysproxy": {
-        "privilegeRequired": "No se puede establecer el proxy del sistema: macOS rechazó el cambio por falta de permisos. Instale el servicio de Clash Verge; si es administrador, también puede desactivar la exigencia de contraseña de administrador para los ajustes de todo el sistema en las opciones avanzadas de Ajustes del Sistema → Privacidad y seguridad.",
+        "privilegeRequired": "No se puede establecer el proxy del sistema: macOS rechazó el cambio por falta de permisos. Instale el servicio de ArClash; si es administrador, también puede desactivar la exigencia de contraseña de administrador para los ajustes de todo el sistema en las opciones avanzadas de Ajustes del Sistema → Privacidad y seguridad.",
         "directFallback": "No se pudo establecer el proxy del sistema; el tráfico volvió a una conexión directa.",
         "guardStopped": "El guardián del proxy del sistema se detuvo tras varios fallos seguidos. El proxy del sistema ya no se mantiene automáticamente.",
-        "sidecarWhileServiceReady": "No se pudo establecer el proxy del sistema: el servicio de Clash Verge está listo, pero el núcleo sigue ejecutándose como Sidecar. Reinicie el núcleo para cambiar al modo de servicio.",
-        "coreNotReady": "No se pudo activar el proxy del sistema porque el núcleo no está en ejecución. Inicie el núcleo (o instale/repare el servicio de Clash Verge) e inténtelo de nuevo.",
+        "sidecarWhileServiceReady": "No se pudo establecer el proxy del sistema: el servicio de ArClash está listo, pero el núcleo sigue ejecutándose como Sidecar. Reinicie el núcleo para cambiar al modo de servicio.",
+        "coreNotReady": "No se pudo activar el proxy del sistema porque el núcleo no está en ejecución. Inicie el núcleo (o instale/repare el servicio de ArClash) e inténtelo de nuevo.",
         "systemCallFailed": "No se pudo escribir el proxy del sistema porque falló una llamada al sistema de Windows. Suele ser transitorio; inténtelo de nuevo."
       }
     },

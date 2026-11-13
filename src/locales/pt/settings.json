@@ -3,20 +3,31 @@
     "actions": {
       "manual": "Manual",
       "telegram": "Canal do Telegram",
-      "github": "Repositório do Github"
+      "github": "Repositório do Github",
+      "resetSettings": "Redefinir configurações"
     },
     "actionsGroupLabel": "Links das configurações",
-    "title": "Configurações"
+    "title": "Configurações",
+    "notifications": {
+      "resetPlaceholder": "A redefinição ainda não está implementada"
+    },
+    "nav": {
+      "system": "Sistema",
+      "basic": "Básico",
+      "theme": "Tema",
+      "advanced": "Avançado"
+    }
   },
   "sections": {
     "system": {
-      "title": "Configurações do Sistema",
+      "title": "Sistema",
       "toggles": {
         "tunMode": "Modo Tun",
         "systemProxy": "Proxy do Sistema"
       },
       "tooltips": {
-        "silentStart": "Inicia o programa em segundo plano sem exibir o painel"
+        "silentStart": "Inicia o programa em segundo plano sem exibir o painel",
+        "autoLaunch": "Iniciar o ArClash automaticamente ao entrar"
       },
       "fields": {
         "autoLaunch": "Iniciar com o Sistema",
@@ -140,7 +151,9 @@
           "networkInterface": "Interface de Rede",
           "unifiedDelay": "Com o atraso unificado ativado, dois testes de atraso são realizados para eliminar as diferenças de atraso entre diferentes tipos de nós causadas por handshakes de conexão, etc.",
           "logLevel": "Este parâmetro é válido apenas para os arquivos de log do núcleo na pasta Service do diretório de logs",
-          "openUwpTool": "Desde o Windows 8, os aplicativos UWP (como a Microsoft Store) são impedidos de acessar diretamente os serviços de rede do host local, e esta ferramenta pode ser usada para contornar essa restrição"
+          "openUwpTool": "Desde o Windows 8, os aplicativos UWP (como a Microsoft Store) são impedidos de acessar diretamente os serviços de rede do host local, e esta ferramenta pode ser usada para contornar essa restrição",
+          "externalController": "mihomo passa a escutar numa porta HTTP de controlo para interfaces web e ferramentas externas; o controlo pelo ArClash não muda",
+          "allowLan": "Permitir que outros dispositivos da rede local acessem pela proxy deste computador"
         },
         "options": {
           "logLevel": {
@@ -152,12 +165,19 @@
           }
         }
       }
+    },
+    "theme": {
+      "title": "Tema"
     }
   },
   "components": {
+    "arkSwitch": {
+      "on": "Ligado",
+      "off": "Desligado"
+    },
     "verge": {
       "basic": {
-        "title": "Configurações Básicas do Verge",
+        "title": "Básico",
         "actions": {
           "browse": "Procurar"
         },
@@ -176,11 +196,13 @@
           "themeSetting": "Configurações do Tema",
           "layoutSetting": "Configurações de Layout",
           "misc": "Diversos",
-          "hotkeySetting": "Configurações de Atalhos"
+          "hotkeySetting": "Configurações de Atalhos",
+          "backupSetting": "Configurações de Backup",
+          "runtimeConfig": "Configuração Atual"
         }
       },
       "advanced": {
-        "title": "Configurações Avançadas do Verge",
+        "title": "Avançado",
         "tooltips": {
           "backupInfo": "Suporta backup local ou via WebDAV dos arquivos de configuração",
           "openConfDir": "Se o software funcionar de forma anormal, FAÇA BACKUP e exclua todos os arquivos desta pasta e reinicie o software",
@@ -199,12 +221,13 @@
           "openConfDir": "Abrir Pasta de Configuração",
           "openCoreDir": "Abrir Pasta do Núcleo",
           "openLogsDir": "Abrir Pasta de Logs",
+          "openDirMenu": "Abrir pasta",
           "checkUpdates": "Verificar Atualizações",
           "openDevTools": "Ferramentas de Desenvolvedor",
           "liteModeSettings": "Configurações do Modo Leve",
           "exit": "Sair",
           "exportDiagnostics": "Exportar Informações de Diagnóstico",
-          "vergeVersion": "Versão do Verge"
+          "vergeVersion": "Versão do ArClash"
         }
       },
       "theme": {
@@ -672,11 +695,11 @@
         "coreAlreadyRunning": "Não é possível iniciar o núcleo: já há um processo do núcleo em execução. Feche o aplicativo correspondente ou encerre o processo remanescente e tente novamente. Se o problema persistir, reinicie o computador."
       },
       "sysproxy": {
-        "privilegeRequired": "Não é possível definir o proxy do sistema: o macOS recusou a alteração por falta de privilégios. Instale o serviço do Clash Verge; um administrador também pode desativar a exigência de senha de administrador para configurações do sistema, nas opções avançadas em Ajustes do Sistema → Privacidade e Segurança.",
+        "privilegeRequired": "Não é possível definir o proxy do sistema: o macOS recusou a alteração por falta de privilégios. Instale o serviço do ArClash; um administrador também pode desativar a exigência de senha de administrador para configurações do sistema, nas opções avançadas em Ajustes do Sistema → Privacidade e Segurança.",
         "directFallback": "Falha ao definir o proxy do sistema; o tráfego foi revertido para conexão direta.",
         "guardStopped": "A proteção do proxy do sistema parou após falhar várias vezes ao executar. O proxy do sistema não está mais sendo mantido.",
-        "sidecarWhileServiceReady": "Não foi possível definir o proxy do sistema porque o núcleo ainda está em execução como Sidecar, embora o serviço do Clash Verge esteja pronto. Reinicie o núcleo para mudar para o modo serviço.",
-        "coreNotReady": "Não foi possível ativar o proxy do sistema porque o núcleo não está em execução. Inicie o núcleo (ou instale/repare o serviço do Clash Verge) e tente novamente.",
+        "sidecarWhileServiceReady": "Não foi possível definir o proxy do sistema porque o núcleo ainda está em execução como Sidecar, embora o serviço do ArClash esteja pronto. Reinicie o núcleo para mudar para o modo serviço.",
+        "coreNotReady": "Não foi possível ativar o proxy do sistema porque o núcleo não está em execução. Inicie o núcleo (ou instale/repare o serviço do ArClash) e tente novamente.",
         "systemCallFailed": "Não foi possível gravar o proxy do sistema porque uma chamada de sistema do Windows falhou. Geralmente é temporário, então tente novamente."
       }
     },

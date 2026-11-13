@@ -3,20 +3,31 @@
     "actions": {
       "manual": "マニュアル",
       "telegram": "Telegramチャンネル",
-      "github": "GitHubリポジトリ"
+      "github": "GitHubリポジトリ",
+      "resetSettings": "設定をリセット"
     },
     "actionsGroupLabel": "設定リンク",
-    "title": "設定"
+    "title": "設定",
+    "notifications": {
+      "resetPlaceholder": "リセット機能は未実装です"
+    },
+    "nav": {
+      "system": "システム",
+      "basic": "基本",
+      "theme": "テーマ",
+      "advanced": "詳細"
+    }
   },
   "sections": {
     "system": {
-      "title": "システム設定",
+      "title": "システム",
       "toggles": {
         "tunMode": "仮想ネットワークカードモード",
         "systemProxy": "システムプロキシ"
       },
       "tooltips": {
-        "silentStart": "アプリケーションを起動すると、バックグラウンドモードで実行され、アプリケーションパネルは表示されません。"
+        "silentStart": "アプリケーションを起動すると、バックグラウンドモードで実行され、アプリケーションパネルは表示されません。",
+        "autoLaunch": "サインイン後に ArClash を自動的に起動します"
       },
       "fields": {
         "autoLaunch": "自動起動",
@@ -140,7 +151,9 @@
           "networkInterface": "ネットワークインターフェース",
           "unifiedDelay": "統一遅延を有効にすると、2回の遅延テストが行われ、接続ハンドシェイクなどによる異なるタイプのノードの遅延差を解消します。",
           "logLevel": "ログディレクトリのServiceフォルダ内のコアログファイルにのみ適用されます。",
-          "openUwpTool": "Windows 8以降では、UWPアプリケーション（Microsoft Storeなど）がローカルホストのネットワークサービスに直接アクセスすることが制限されています。このツールを使用すると、この制限を回避できます。"
+          "openUwpTool": "Windows 8以降では、UWPアプリケーション（Microsoft Storeなど）がローカルホストのネットワークサービスに直接アクセスすることが制限されています。このツールを使用すると、この制限を回避できます。",
+          "externalController": "有効にすると mihomo が HTTP 制御ポートを待ち受け、Web UI や外部ツールから接続できます（ArClash 自身の制御には影響しません）",
+          "allowLan": "LAN 内の他のデバイスがこのマシンのプロキシ経由で接続できるようにします"
         },
         "options": {
           "logLevel": {
@@ -152,12 +165,19 @@
           }
         }
       }
+    },
+    "theme": {
+      "title": "テーマ"
     }
   },
   "components": {
+    "arkSwitch": {
+      "on": "オン",
+      "off": "オフ"
+    },
     "verge": {
       "basic": {
-        "title": "Verge基本設定",
+        "title": "基本設定",
         "actions": {
           "browse": "参照"
         },
@@ -176,11 +196,13 @@
           "themeSetting": "テーマ設定",
           "layoutSetting": "レイアウト設定",
           "misc": "その他の設定",
-          "hotkeySetting": "ホットキー設定"
+          "hotkeySetting": "ホットキー設定",
+          "backupSetting": "バックアップ設定",
+          "runtimeConfig": "現在の設定"
         }
       },
       "advanced": {
-        "title": "Verge詳細設定",
+        "title": "詳細設定",
         "tooltips": {
           "backupInfo": "WebDAVを使用した設定ファイルのバックアップをサポートします。",
           "openConfDir": "アプリケーションが正常に動作しない場合は、このフォルダ内のすべてのファイルを!バックアップ!して削除し、アプリケーションを再起動してください。",
@@ -199,12 +221,13 @@
           "openConfDir": "設定ディレクトリを開く",
           "openCoreDir": "コアディレクトリを開く",
           "openLogsDir": "ログディレクトリを開く",
+          "openDirMenu": "フォルダを開く",
           "checkUpdates": "更新を確認",
           "openDevTools": "開発者ツールを開く",
           "liteModeSettings": "軽量モード設定",
           "exit": "終了",
           "exportDiagnostics": "診断情報をエクスポート",
-          "vergeVersion": "Vergeバージョン"
+          "vergeVersion": "ArClash バージョン"
         }
       },
       "theme": {
@@ -672,11 +695,11 @@
         "coreAlreadyRunning": "コアを起動できません：コアプロセスが実行中です。関連アプリまたは残存プロセスを終了して再試行してください。解決しない場合は、コンピューターを再起動してください。"
       },
       "sysproxy": {
-        "privilegeRequired": "システムプロキシを設定できません: 権限が不足しているため macOS が変更を拒否しました。Clash Verge サービスをインストールしてください。管理者であれば、システム設定 → プライバシーとセキュリティの詳細オプションで、システム全体の設定に管理者パスワードを要求する設定をオフにすることもできます。",
+        "privilegeRequired": "システムプロキシを設定できません: 権限が不足しているため macOS が変更を拒否しました。ArClash サービスをインストールしてください。管理者であれば、システム設定 → プライバシーとセキュリティの詳細オプションで、システム全体の設定に管理者パスワードを要求する設定をオフにすることもできます。",
         "directFallback": "システムプロキシの設定に失敗したため、直接接続に戻しました。",
         "guardStopped": "システムプロキシガードが連続して失敗したため停止しました。システムプロキシは自動的に維持されなくなりました。",
-        "sidecarWhileServiceReady": "システムプロキシを設定できませんでした: Clash Verge サービスは準備できていますが、コアはまだ Sidecar で動作しています。コアを再起動するとサービスモードに切り替わります。",
-        "coreNotReady": "コアが実行されていないため、システムプロキシを有効にできませんでした。コアを起動する（または Clash Verge サービスをインストール／修復する）してから再試行してください。",
+        "sidecarWhileServiceReady": "システムプロキシを設定できませんでした: ArClash サービスは準備できていますが、コアはまだ Sidecar で動作しています。コアを再起動するとサービスモードに切り替わります。",
+        "coreNotReady": "コアが実行されていないため、システムプロキシを有効にできませんでした。コアを起動する（または ArClash サービスをインストール／修復する）してから再試行してください。",
         "systemCallFailed": "Windows のシステムコールが失敗したため、システムプロキシを書き込めませんでした。多くは一時的な問題です。再試行してください。"
       }
     },

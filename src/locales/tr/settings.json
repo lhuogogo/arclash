@@ -3,20 +3,31 @@
     "actions": {
       "manual": "Kılavuz",
       "telegram": "Telegram Kanalı",
-      "github": "GitHub Deposu"
+      "github": "GitHub Deposu",
+      "resetSettings": "Ayarları Sıfırla"
     },
     "actionsGroupLabel": "Ayar bağlantıları",
-    "title": "Ayarlar"
+    "title": "Ayarlar",
+    "notifications": {
+      "resetPlaceholder": "Sıfırlama henüz uygulanmadı"
+    },
+    "nav": {
+      "system": "Sistem",
+      "basic": "Temel",
+      "theme": "Tema",
+      "advanced": "Gelişmiş"
+    }
   },
   "sections": {
     "system": {
-      "title": "Sistem Ayarları",
+      "title": "Sistem",
       "toggles": {
         "tunMode": "Tun Modu",
         "systemProxy": "Sistem Vekil'i"
       },
       "tooltips": {
-        "silentStart": "Programı paneli görüntülemeden arka plan modunda başlatır"
+        "silentStart": "Programı paneli görüntülemeden arka plan modunda başlatır",
+        "autoLaunch": "Oturum açıldığında ArClash otomatik başlatılır"
       },
       "fields": {
         "autoLaunch": "Otomatik Başlat",
@@ -140,7 +151,9 @@
           "networkInterface": "Ağ Arayüzü",
           "unifiedDelay": "Birleşik gecikme açıldığında, bağlantı el sıkışmaları vb. nedeniyle farklı tür düğümler arasındaki gecikme farklarını ortadan kaldırmak için iki gecikme testi gerçekleştirilir",
           "logLevel": "Bu parametre yalnızca günlük dizini Hizmet klasöründeki çekirdek günlük dosyaları için geçerlidir",
-          "openUwpTool": "Windows 8'den beri, UWP uygulamaları (Microsoft Store gibi) yerel ana bilgisayar ağ hizmetlerine doğrudan erişmekten kısıtlanmıştır ve bu araç bu kısıtlamayı atlatmak için kullanılabilir"
+          "openUwpTool": "Windows 8'den beri, UWP uygulamaları (Microsoft Store gibi) yerel ana bilgisayar ağ hizmetlerine doğrudan erişmekten kısıtlanmıştır ve bu araç bu kısıtlamayı atlatmak için kullanılabilir",
+          "externalController": "mihomo, web arayüzleri ve üçüncü taraf araçlar için HTTP denetim portunu dinler; ArClash denetimi etkilenmez",
+          "allowLan": "Yerel ağdaki diğer aygıtların bu bilgisayarın proxy’si üzerinden bağlanmasına izin ver"
         },
         "options": {
           "logLevel": {
@@ -152,12 +165,19 @@
           }
         }
       }
+    },
+    "theme": {
+      "title": "Tema"
     }
   },
   "components": {
+    "arkSwitch": {
+      "on": "Açık",
+      "off": "Kapalı"
+    },
     "verge": {
       "basic": {
-        "title": "Verge Temel Ayarı",
+        "title": "Temel",
         "actions": {
           "browse": "Gözat"
         },
@@ -176,11 +196,13 @@
           "themeSetting": "Tema Ayarı",
           "layoutSetting": "Düzen Ayarı",
           "misc": "Çeşitli",
-          "hotkeySetting": "Kısayol Tuşu Ayarı"
+          "hotkeySetting": "Kısayol Tuşu Ayarı",
+          "backupSetting": "Yedekleme Ayarı",
+          "runtimeConfig": "Mevcut Yapılandırma"
         }
       },
       "advanced": {
-        "title": "Verge Gelişmiş Ayarı",
+        "title": "Gelişmiş",
         "tooltips": {
           "backupInfo": "WebDAV yedekleme yapılandırma dosyalarını destekler",
           "openConfDir": "Yazılım anormal çalışıyorsa, bu klasördeki tüm dosyaları YEDEKLEYİN ve silin, ardından yazılımı yeniden başlatın",
@@ -199,12 +221,13 @@
           "openConfDir": "Yapılandırma Dizinini Aç",
           "openCoreDir": "Çekirdek Dizinini Aç",
           "openLogsDir": "Günlük Dizinini Aç",
+          "openDirMenu": "Klasörü aç",
           "checkUpdates": "Güncellemeleri Kontrol Et",
           "openDevTools": "Geliştirici Araçları",
           "liteModeSettings": "Hafif Mod Ayarları",
           "exit": "Çıkış",
           "exportDiagnostics": "Tanılama Bilgilerini Dışa Aktar",
-          "vergeVersion": "Verge Sürümü"
+          "vergeVersion": "ArClash Sürümü"
         }
       },
       "theme": {
@@ -672,11 +695,11 @@
         "coreAlreadyRunning": "Çekirdek başlatılamıyor: bir çekirdek işlemi zaten çalışıyor. İlgili uygulamayı kapatın veya kalan işlemi sonlandırıp yeniden deneyin. Sorun devam ederse bilgisayarı yeniden başlatın."
       },
       "sysproxy": {
-        "privilegeRequired": "Sistem vekil sunucusu ayarlanamıyor: macOS yetki yetersizliği nedeniyle değişikliği reddetti. Clash Verge hizmetini kurun; yöneticiyseniz Sistem Ayarları → Gizlilik ve Güvenlik bölümündeki gelişmiş seçeneklerden, sistem genelindeki ayarlar için yönetici parolası zorunluluğunu da kapatabilirsiniz.",
+        "privilegeRequired": "Sistem vekil sunucusu ayarlanamıyor: macOS yetki yetersizliği nedeniyle değişikliği reddetti. ArClash hizmetini kurun; yöneticiyseniz Sistem Ayarları → Gizlilik ve Güvenlik bölümündeki gelişmiş seçeneklerden, sistem genelindeki ayarlar için yönetici parolası zorunluluğunu da kapatabilirsiniz.",
         "directFallback": "Sistem vekil sunucusu ayarlanamadı; trafik doğrudan bağlantıya geri döndürüldü.",
         "guardStopped": "Sistem vekil sunucusu koruması art arda birkaç başarısızlıktan sonra durdu. Sistem vekil sunucusu artık otomatik olarak korunmuyor.",
-        "sidecarWhileServiceReady": "Sistem vekil sunucusu ayarlanamadı: Clash Verge hizmeti hazır ancak çekirdek hâlâ Sidecar olarak çalışıyor. Hizmet moduna geçmek için çekirdeği yeniden başlatın.",
-        "coreNotReady": "Çekirdek çalışmadığı için sistem vekil sunucusu etkinleştirilemedi. Çekirdeği başlatın (veya Clash Verge hizmetini kurun/onarın) ve yeniden deneyin.",
+        "sidecarWhileServiceReady": "Sistem vekil sunucusu ayarlanamadı: ArClash hizmeti hazır ancak çekirdek hâlâ Sidecar olarak çalışıyor. Hizmet moduna geçmek için çekirdeği yeniden başlatın.",
+        "coreNotReady": "Çekirdek çalışmadığı için sistem vekil sunucusu etkinleştirilemedi. Çekirdeği başlatın (veya ArClash hizmetini kurun/onarın) ve yeniden deneyin.",
         "systemCallFailed": "Bir Windows sistem çağrısı başarısız olduğu için sistem vekil sunucusu yazılamadı. Bu genellikle geçicidir, yeniden deneyin."
       }
     },

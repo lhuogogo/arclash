@@ -7,7 +7,6 @@ import {
   PauseCircleOutlined,
 } from '@mui/icons-material'
 import { Typography, Stack, Divider, Chip, IconButton } from '@mui/material'
-import { useLockFn } from 'ahooks'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
@@ -21,7 +20,6 @@ import {
 } from '@/hooks/use-update'
 import { useVerge } from '@/hooks/use-verge'
 import { getSystemInfo } from '@/services/cmds'
-import { showNotice } from '@/services/notice-service'
 import { version as appVersion } from '@root/package.json'
 
 import { EnhancedCard } from './enhanced-card'
@@ -96,24 +94,6 @@ export const SystemInfoCard = () => {
     installServiceAndRestartCore,
     mutateSystemState,
   ])
-
-  const onCheckUpdate = useLockFn(async () => {
-    try {
-      const result = await triggerCheckUpdate()
-      const info = result.data
-      if (!info?.available) {
-        showNotice.success(
-          'settings.components.verge.advanced.notifications.latestVersion',
-        )
-      } else {
-        showNotice.info('shared.feedback.notifications.updateAvailable', 2000)
-        goToSettings()
-      }
-    } catch (err) {
-      console.warn('update check failed:', err)
-      showNotice.warning(err)
-    }
-  })
 
   const autoLaunchEnabled = useMemo(
     () => verge?.enable_auto_launch || false,
@@ -270,16 +250,9 @@ export const SystemInfoCard = () => {
           <Typography variant="body2" color="text.secondary">
             {t('home.components.systemInfo.fields.lastCheckUpdate')}
           </Typography>
-          <Typography
-            variant="body2"
-            onClick={onCheckUpdate}
-            sx={{
-              cursor: 'pointer',
-              textDecoration: 'underline',
-              fontWeight: 'medium',
-              '&:hover': { opacity: 0.7 },
-            }}
-          >
+          {/* Display only: the update source is not configured yet, so a click
+              could only fail. The row returns when the updater ships. */}
+          <Typography variant="body2" color="text.secondary">
             {lastCheckUpdateText}
           </Typography>
         </Stack>

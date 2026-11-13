@@ -5,7 +5,6 @@ import {
   ListItem,
   ListItemButton,
   ListItemText,
-  ListSubheader,
 } from '@mui/material'
 import CircularProgress from '@mui/material/CircularProgress'
 import React, { ReactNode, useState } from 'react'
@@ -14,6 +13,8 @@ import isAsyncFunction from '@/utils/is-async-function'
 
 interface ItemProps {
   label: ReactNode
+  /** Visible asterisk note under the title; replaces hover-only tooltips. */
+  note?: ReactNode
   extra?: ReactNode
   children?: ReactNode
   secondary?: ReactNode
@@ -22,6 +23,7 @@ interface ItemProps {
 
 export const SettingItem: React.FC<ItemProps> = ({
   label,
+  note,
   extra,
   children,
   secondary,
@@ -31,10 +33,40 @@ export const SettingItem: React.FC<ItemProps> = ({
 
   const primary = (
     <Box sx={{ display: 'flex', alignItems: 'center', fontSize: '14px' }}>
-      <span>{label}</span>
+      {/* 方舟化：粗体标题带下缘短线，线与文字同宽 */}
+      <Box
+        component="span"
+        sx={{
+          fontWeight: 700,
+          fontSize: 15,
+          letterSpacing: 0.5,
+          pb: '6px',
+          borderBottom: '1px solid var(--ark-border)',
+        }}
+      >
+        {label}
+      </Box>
       {extra ? extra : null}
     </Box>
   )
+
+  const noteNode = note ? (
+    <Box
+      sx={{
+        mt: '7px',
+        fontSize: 12,
+        lineHeight: 1.5,
+        color: 'var(--ark-text-2)',
+        '&::before': {
+          content: '"*"',
+          color: 'var(--ark-text-3)',
+          mr: '2px',
+        },
+      }}
+    >
+      {note}
+    </Box>
+  ) : null
 
   const [isLoading, setIsLoading] = useState(false)
   const handleClick = () => {
@@ -51,7 +83,15 @@ export const SettingItem: React.FC<ItemProps> = ({
   return clickable ? (
     <ListItem disablePadding>
       <ListItemButton onClick={handleClick} disabled={isLoading}>
-        <ListItemText primary={primary} secondary={secondary} />
+        <ListItemText
+          primary={primary}
+          secondary={
+            <>
+              {noteNode}
+              {secondary}
+            </>
+          }
+        />
         {isLoading ? (
           <CircularProgress color="inherit" size={20} />
         ) : (
@@ -60,8 +100,16 @@ export const SettingItem: React.FC<ItemProps> = ({
       </ListItemButton>
     </ListItem>
   ) : (
-    <ListItem sx={{ pt: '5px', pb: '5px' }}>
-      <ListItemText primary={primary} secondary={secondary} />
+    <ListItem sx={{ pt: '14px', pb: '12px' }}>
+      <ListItemText
+        primary={primary}
+        secondary={
+          <>
+            {noteNode}
+            {secondary}
+          </>
+        }
+      />
       {children}
     </ListItem>
   )
@@ -72,19 +120,21 @@ export const SettingList: React.FC<{
   children: ReactNode
 }> = ({ title, children }) => (
   <List>
-    <ListSubheader
-      sx={[
-        { background: 'transparent', fontSize: '16px', fontWeight: '700' },
-        ({ palette }) => {
-          return {
-            color: palette.text.primary,
-          }
-        },
-      ]}
-      disableSticky
+    {/* 方舟化：深色横幅标题条 */}
+    <Box
+      sx={{
+        backgroundColor: 'var(--ark-banner)',
+        border: '1px solid var(--ark-divider)',
+        padding: '8px 16px',
+        fontSize: 15,
+        fontWeight: 700,
+        letterSpacing: 2,
+        color: 'var(--ark-text, #fff)',
+        mb: '6px',
+      }}
     >
       {title}
-    </ListSubheader>
+    </Box>
 
     {children}
   </List>

@@ -1,12 +1,11 @@
 import { ContentCopyRounded } from '@mui/icons-material'
-import { Typography } from '@mui/material'
-import { useCallback, useRef } from 'react'
+import { Box, Menu, MenuItem, Typography } from '@mui/material'
+import { useCallback, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { DialogRef, TooltipIcon } from '@/components/base'
-import { updateLastCheckTime } from '@/hooks/use-update'
+import { TooltipIcon } from '@/components/base'
+import { useClash } from '@/hooks/use-clash'
 import {
-  exitApp,
   exportDiagnosticInfo,
   openAppDir,
   openCoreDir,
@@ -15,18 +14,9 @@ import {
 } from '@/services/cmds'
 import { mutate } from '@/services/mutate'
 import { showNotice } from '@/services/notice-service'
-import { checkUpdateSafe as checkUpdate } from '@/services/update'
 import { version } from '@root/package.json'
 
-import { BackupViewer } from './mods/backup-viewer'
-import { ConfigViewer } from './mods/config-viewer'
-import { HotkeyViewer } from './mods/hotkey-viewer'
-import { LayoutViewer } from './mods/layout-viewer'
-import { LiteModeViewer } from './mods/lite-mode-viewer'
-import { MiscViewer } from './mods/misc-viewer'
 import { SettingItem, SettingList } from './mods/setting-comp'
-import { ThemeViewer } from './mods/theme-viewer'
-import { UpdateViewer } from './mods/update-viewer'
 
 interface Props {
   onError?: (err: Error) => void
@@ -34,32 +24,13 @@ interface Props {
 
 const SettingVergeAdvanced = ({ onError: _ }: Props) => {
   const { t } = useTranslation()
+  const { version: coreVersion } = useClash()
 
-  const configRef = useRef<DialogRef>(null)
-  const hotkeyRef = useRef<DialogRef>(null)
-  const miscRef = useRef<DialogRef>(null)
-  const themeRef = useRef<DialogRef>(null)
-  const layoutRef = useRef<DialogRef>(null)
-  const updateRef = useRef<DialogRef>(null)
-  const backupRef = useRef<DialogRef>(null)
-  const liteModeRef = useRef<DialogRef>(null)
-
-  const onCheckUpdate = async () => {
-    try {
-      const info = await checkUpdate()
-      updateLastCheckTime()
-      if (!info?.available) {
-        showNotice.success(
-          'settings.components.verge.advanced.notifications.latestVersion',
-        )
-      } else {
-        updateRef.current?.open()
-      }
-    } catch (err) {
-      console.warn('update check failed:', err)
-      showNotice.warning(err)
-    }
-  }
+  // The three directory rows collapsed into one entry (user, 11-13): they were
+  // three separate lines of the same rare navigation. The menu anchors to the
+  // wrapper because SettingItem does not forward a ref.
+  const dirRowRef = useRef<HTMLDivElement>(null)
+  const [dirMenuOpen, setDirMenuOpen] = useState(false)
 
   const onExportDiagnosticInfo = useCallback(async () => {
     await mutate(() => exportDiagnosticInfo(), {
@@ -78,100 +49,13 @@ const SettingVergeAdvanced = ({ onError: _ }: Props) => {
     })
   }, [])
 
+  const pickDir = (open: () => unknown) => {
+    setDirMenuOpen(false)
+    void open()
+  }
+
   return (
     <SettingList title={t('settings.components.verge.advanced.title')}>
-      <ThemeViewer ref={themeRef} />
-      <ConfigViewer ref={configRef} />
-      <HotkeyViewer ref={hotkeyRef} />
-      <MiscViewer ref={miscRef} />
-      <LayoutViewer ref={layoutRef} />
-      <UpdateViewer ref={updateRef} />
-      <BackupViewer ref={backupRef} />
-      <LiteModeViewer ref={liteModeRef} />
-
-      <SettingItem
-        onClick={() => backupRef.current?.open()}
-        label={t('settings.components.verge.advanced.fields.backupSetting')}
-        extra={
-          <TooltipIcon
-            title={t('settings.components.verge.advanced.tooltips.backupInfo')}
-            sx={{ opacity: '0.7' }}
-          />
-        }
-      />
-
-      <SettingItem
-        onClick={() => configRef.current?.open()}
-        label={t('settings.components.verge.advanced.fields.runtimeConfig')}
-      />
-
-      <SettingItem
-        onClick={openAppDir}
-        label={t('settings.components.verge.advanced.fields.openConfDir')}
-        extra={
-          <TooltipIcon
-            title={t('settings.components.verge.advanced.tooltips.openConfDir')}
-            sx={{ opacity: '0.7' }}
-          />
-        }
-      />
-
-      <SettingItem
-        onClick={openCoreDir}
-        label={t('settings.components.verge.advanced.fields.openCoreDir')}
-      />
-
-      <SettingItem
-        onClick={openLogsDir}
-        label={t('settings.components.verge.advanced.fields.openLogsDir')}
-      />
-
-      <SettingItem
-        onClick={onCheckUpdate}
-        label={t('settings.components.verge.advanced.fields.checkUpdates')}
-      />
-
-      <SettingItem
-        onClick={() => {
-          void mutate(() => openDevTools(), {
-            id: 'open-devtools',
-            errorNotice: false,
-          }).catch(() => {})
-        }}
-        label={t('settings.components.verge.advanced.fields.openDevTools')}
-      />
-
-      <SettingItem
-        label={t('settings.components.verge.advanced.fields.liteModeSettings')}
-        extra={
-          <TooltipIcon
-            title={t('settings.components.verge.advanced.tooltips.liteMode')}
-            sx={{ opacity: '0.7' }}
-          />
-        }
-        onClick={() => liteModeRef.current?.open()}
-      />
-
-      <SettingItem
-        onClick={() => {
-          void mutate(() => exitApp(), {
-            id: 'exit-app',
-            errorNotice: false,
-          }).catch(() => {})
-        }}
-        label={t('settings.components.verge.advanced.fields.exit')}
-      />
-
-      <SettingItem
-        label={t('settings.components.verge.advanced.fields.exportDiagnostics')}
-        extra={
-          <TooltipIcon
-            icon={ContentCopyRounded}
-            onClick={onExportDiagnosticInfo}
-          />
-        }
-      ></SettingItem>
-
       <SettingItem
         label={t('settings.components.verge.advanced.fields.vergeVersion')}
         extra={
@@ -184,6 +68,55 @@ const SettingVergeAdvanced = ({ onError: _ }: Props) => {
       >
         <Typography sx={{ py: '7px', pr: 1 }}>v{version}</Typography>
       </SettingItem>
+
+      <SettingItem label={t('settings.sections.clash.form.fields.clashCore')}>
+        <Typography sx={{ py: '7px', pr: 1 }}>{coreVersion}</Typography>
+      </SettingItem>
+
+      <Box ref={dirRowRef}>
+        <SettingItem
+          onClick={() => setDirMenuOpen(true)}
+          label={t('settings.components.verge.advanced.fields.openDirMenu')}
+          note={t('settings.components.verge.advanced.tooltips.openConfDir')}
+        />
+      </Box>
+
+      <Menu
+        anchorEl={dirRowRef.current}
+        open={dirMenuOpen}
+        onClose={() => setDirMenuOpen(false)}
+      >
+        <MenuItem onClick={() => pickDir(openAppDir)}>
+          {t('settings.components.verge.advanced.fields.openConfDir')}
+        </MenuItem>
+        <MenuItem onClick={() => pickDir(openCoreDir)}>
+          {t('settings.components.verge.advanced.fields.openCoreDir')}
+        </MenuItem>
+        <MenuItem onClick={() => pickDir(openLogsDir)}>
+          {t('settings.components.verge.advanced.fields.openLogsDir')}
+        </MenuItem>
+      </Menu>
+
+      <SettingItem
+        onClick={() => {
+          void mutate(() => openDevTools(), {
+            id: 'open-devtools',
+            errorNotice: false,
+          }).catch(() => {})
+        }}
+        label={t('settings.components.verge.advanced.fields.openDevTools')}
+      />
+
+      <SettingItem
+        label={t('settings.components.verge.advanced.fields.exportDiagnostics')}
+        extra={
+          <TooltipIcon
+            icon={ContentCopyRounded}
+            onClick={onExportDiagnosticInfo}
+          />
+        }
+      ></SettingItem>
+
     </SettingList>
   )
 }

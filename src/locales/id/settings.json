@@ -3,20 +3,31 @@
     "actions": {
       "manual": "Manual",
       "telegram": "Saluran Telegram",
-      "github": "Repositori Github"
+      "github": "Repositori Github",
+      "resetSettings": "Atur Ulang Pengaturan"
     },
     "actionsGroupLabel": "Tautan pengaturan",
-    "title": "Pengaturan"
+    "title": "Pengaturan",
+    "notifications": {
+      "resetPlaceholder": "Pengaturan ulang belum diimplementasikan"
+    },
+    "nav": {
+      "system": "Sistem",
+      "basic": "Dasar",
+      "theme": "Tema",
+      "advanced": "Lanjutan"
+    }
   },
   "sections": {
     "system": {
-      "title": "Pengaturan Sistem",
+      "title": "Sistem",
       "toggles": {
         "tunMode": "Mode Tun (NIC Virtual)",
         "systemProxy": "Proksi Sistem"
       },
       "tooltips": {
-        "silentStart": "Mulai program dalam mode latar belakang tanpa menampilkan panel"
+        "silentStart": "Mulai program dalam mode latar belakang tanpa menampilkan panel",
+        "autoLaunch": "ArClash dimulai otomatis setelah masuk"
       },
       "fields": {
         "autoLaunch": "Mulai otomatis",
@@ -140,7 +151,9 @@
           "networkInterface": "Antarmuka Jaringan",
           "unifiedDelay": "Saat keterlambatan terpadu diaktifkan, dua tes keterlambatan akan dilakukan untuk menghilangkan perbedaan keterlambatan antara berbagai jenis node yang disebabkan oleh jabat tangan koneksi, dll.",
           "logLevel": "Ini hanya berlaku untuk file log kernel di folder layanan di direktori log.",
-          "openUwpTool": "Sejak Windows 8, aplikasi UWP (seperti Microsoft Store) dibatasi dari mengakses layanan jaringan host lokal secara langsung, dan alat ini dapat digunakan untuk melewati pembatasan ini"
+          "openUwpTool": "Sejak Windows 8, aplikasi UWP (seperti Microsoft Store) dibatasi dari mengakses layanan jaringan host lokal secara langsung, dan alat ini dapat digunakan untuk melewati pembatasan ini",
+          "externalController": "mihomo akan mendengarkan porta kontrol HTTP untuk Web UI dan alat pihak ketiga; kendali dari ArClash tidak terpengaruh",
+          "allowLan": "Izinkan perangkat lain di LAN online melalui proxy komputer ini"
         },
         "options": {
           "logLevel": {
@@ -152,12 +165,19 @@
           }
         }
       }
+    },
+    "theme": {
+      "title": "Tema"
     }
   },
   "components": {
+    "arkSwitch": {
+      "on": "Nyala",
+      "off": "Mati"
+    },
     "verge": {
       "basic": {
-        "title": "Pengaturan Dasar Verge",
+        "title": "Dasar",
         "actions": {
           "browse": "Jelajahi"
         },
@@ -176,11 +196,13 @@
           "themeSetting": "Pengaturan Tema",
           "layoutSetting": "Pengaturan Tata Letak",
           "misc": "Lain-lain",
-          "hotkeySetting": "Pengaturan Pintasan"
+          "hotkeySetting": "Pengaturan Pintasan",
+          "backupSetting": "Pengaturan Cadangan",
+          "runtimeConfig": "Konfigurasi Saat Ini"
         }
       },
       "advanced": {
-        "title": "Pengaturan Lanjutan Verge",
+        "title": "Lanjutan",
         "tooltips": {
           "backupInfo": "Mendukung file konfigurasi cadangan WebDAV",
           "openConfDir": "Jika perangkat lunak berjalan tidak normal, CADANGKAN dan hapus semua file di folder ini lalu mulai ulang perangkat lunak",
@@ -199,12 +221,13 @@
           "openConfDir": "Buka Direktori Konfigurasi",
           "openCoreDir": "Buka Direktori Core",
           "openLogsDir": "Buka Direktori Log",
+          "openDirMenu": "Buka Folder",
           "checkUpdates": "Periksa Pembaruan",
           "openDevTools": "Buka Alat Pengembang",
           "liteModeSettings": "LightWeight Mode Settings",
           "exit": "Keluar",
           "exportDiagnostics": "Export Diagnostic Info",
-          "vergeVersion": "Versi Verge"
+          "vergeVersion": "Versi ArClash"
         }
       },
       "theme": {
@@ -672,11 +695,11 @@
         "coreAlreadyRunning": "Tidak dapat memulai inti: proses inti sudah berjalan. Tutup aplikasi terkait atau hentikan proses yang tersisa, lalu coba lagi. Jika masalah berlanjut, mulai ulang komputer."
       },
       "sysproxy": {
-        "privilegeRequired": "Tidak dapat mengatur proxy sistem: macOS menolak perubahan ini karena hak akses tidak mencukupi. Pasang layanan Clash Verge; jika Anda administrator, Anda juga dapat mematikan keharusan kata sandi administrator untuk pengaturan seluruh sistem di opsi lanjutan Pengaturan Sistem → Privasi & Keamanan.",
+        "privilegeRequired": "Tidak dapat mengatur proxy sistem: macOS menolak perubahan ini karena hak akses tidak mencukupi. Pasang layanan ArClash; jika Anda administrator, Anda juga dapat mematikan keharusan kata sandi administrator untuk pengaturan seluruh sistem di opsi lanjutan Pengaturan Sistem → Privasi & Keamanan.",
         "directFallback": "Gagal mengatur proxy sistem; lalu lintas dikembalikan ke koneksi langsung.",
         "guardStopped": "Penjaga proxy sistem berhenti setelah gagal beberapa kali berturut-turut. Proxy sistem tidak lagi dipertahankan secara otomatis.",
-        "sidecarWhileServiceReady": "Proxy sistem tidak dapat diatur: layanan Clash Verge sudah siap, tetapi inti masih berjalan sebagai Sidecar. Mulai ulang inti untuk beralih ke mode layanan.",
-        "coreNotReady": "Proxy sistem tidak dapat diaktifkan karena inti tidak berjalan. Jalankan inti (atau pasang/perbaiki layanan Clash Verge) lalu coba lagi.",
+        "sidecarWhileServiceReady": "Proxy sistem tidak dapat diatur: layanan ArClash sudah siap, tetapi inti masih berjalan sebagai Sidecar. Mulai ulang inti untuk beralih ke mode layanan.",
+        "coreNotReady": "Proxy sistem tidak dapat diaktifkan karena inti tidak berjalan. Jalankan inti (atau pasang/perbaiki layanan ArClash) lalu coba lagi.",
         "systemCallFailed": "Proxy sistem gagal ditulis karena panggilan sistem Windows gagal. Ini biasanya sementara, coba lagi."
       }
     },

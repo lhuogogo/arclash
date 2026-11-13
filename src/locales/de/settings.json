@@ -3,20 +3,31 @@
     "actions": {
       "manual": "Bedienungsanleitung",
       "telegram": "Telegram-Kanal",
-      "github": "GitHub-Projektadresse"
+      "github": "GitHub-Projektadresse",
+      "resetSettings": "Einstellungen zurücksetzen"
     },
     "actionsGroupLabel": "Einstellungslinks",
-    "title": "Einstellungen"
+    "title": "Einstellungen",
+    "notifications": {
+      "resetPlaceholder": "Zurücksetzen ist noch nicht implementiert"
+    },
+    "nav": {
+      "system": "System",
+      "basic": "Basis",
+      "theme": "Design",
+      "advanced": "Erweitert"
+    }
   },
   "sections": {
     "system": {
-      "title": "Systemeinstellungen",
+      "title": "System",
       "toggles": {
         "tunMode": "Virtual Network Interface-Modus",
         "systemProxy": "Systemproxy"
       },
       "tooltips": {
-        "silentStart": "Die Anwendung wird im Hintergrund gestartet, ohne dass das Programmfenster angezeigt wird."
+        "silentStart": "Die Anwendung wird im Hintergrund gestartet, ohne dass das Programmfenster angezeigt wird.",
+        "autoLaunch": "ArClash nach der Anmeldung automatisch starten"
       },
       "fields": {
         "autoLaunch": "Automatischer Start",
@@ -140,7 +151,9 @@
           "networkInterface": "Netzwerkschnittstelle",
           "unifiedDelay": "Wenn die einheitliche Latenz aktiviert ist, werden zwei Latenztests durchgeführt, um die Latenzunterschiede zwischen verschiedenen Knotentypen aufgrund von Verbindungsaufbau und anderen Faktoren zu eliminieren.",
           "logLevel": "Dies wirkt sich nur auf die Kernprotokolldateien im Verzeichnis Service im Protokollverzeichnis aus.",
-          "openUwpTool": "Ab Windows 8 wird die direkte Netzwerkverbindung von UWP-Anwendungen (z. B. Microsoft Store) zu lokalen Hosts eingeschränkt. Mit diesem Tool können Sie diese Einschränkung umgehen."
+          "openUwpTool": "Ab Windows 8 wird die direkte Netzwerkverbindung von UWP-Anwendungen (z. B. Microsoft Store) zu lokalen Hosts eingeschränkt. Mit diesem Tool können Sie diese Einschränkung umgehen.",
+          "externalController": "mihomo lauscht dann auf einem HTTP-Steuerport für Web-UIs und Fremdtools; die Steuerung durch ArClash bleibt davon unberührt",
+          "allowLan": "Anderen Geräten im LAN erlauben, über den Proxy dieses Rechners online zu gehen"
         },
         "options": {
           "logLevel": {
@@ -152,12 +165,19 @@
           }
         }
       }
+    },
+    "theme": {
+      "title": "Design"
     }
   },
   "components": {
+    "arkSwitch": {
+      "on": "An",
+      "off": "Aus"
+    },
     "verge": {
       "basic": {
-        "title": "Verge-Grundeinstellungen",
+        "title": "Allgemein",
         "actions": {
           "browse": "Durchsuchen"
         },
@@ -176,11 +196,13 @@
           "themeSetting": "Thema-Einstellungen",
           "layoutSetting": "Layout-Einstellungen",
           "misc": "Sonstige Einstellungen",
-          "hotkeySetting": "Tastenkombinationseinstellungen"
+          "hotkeySetting": "Tastenkombinationseinstellungen",
+          "backupSetting": "Backup-Einstellungen",
+          "runtimeConfig": "Aktuelle Konfiguration"
         }
       },
       "advanced": {
-        "title": "Verge-Erweiterte Einstellungen",
+        "title": "Erweitert",
         "tooltips": {
           "backupInfo": "Unterstützt die Sicherung von Konfigurationsdateien über WebDAV",
           "openConfDir": "Wenn die Software fehlerhaft funktioniert, !sichern Sie! alle Dateien in diesem Verzeichnis, löschen Sie sie und starten Sie die Software neu.",
@@ -199,12 +221,13 @@
           "openConfDir": "Konfigurationsverzeichnis",
           "openCoreDir": "Kernverzeichnis",
           "openLogsDir": "Protokollverzeichnis",
+          "openDirMenu": "Ordner öffnen",
           "checkUpdates": "Auf Updates prüfen",
           "openDevTools": "Entwicklertools öffnen",
           "liteModeSettings": "Einstellungen für den Leichtgewichtigen Modus",
           "exit": "Beenden",
           "exportDiagnostics": "Diagnoseinformationen exportieren",
-          "vergeVersion": "Verge-Version"
+          "vergeVersion": "ArClash-Version"
         }
       },
       "theme": {

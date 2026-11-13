@@ -1,6 +1,6 @@
 {
   "name": "arclash",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "ArClash - an Arknights-styled Mihomo client, forked from clash-verge-rev",
   "license": "GPL-3.0-only",
   "scripts": {

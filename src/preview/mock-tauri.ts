@@ -231,6 +231,22 @@ let vergeConfig = {
   verge_socks_port: 7898,
   verge_port: 7899,
   notice_position: 'bottom-right' as const,
+  // Fields the layout/dialog switches read back after a patch; missing ones
+  // made every toggle bounce off in the preview (found 11-14 on
+  // collapse_navbar — same shape as the clash-config fix above).
+  enable_group_icon: true,
+  collapse_navbar: false,
+  nav_icon: false,
+  tray_icon: 'monochrome' as const,
+  common_tray_icon: false,
+  enable_tray_speed: false,
+  tray_inline_outbound_modes: false,
+  tray_proxy_groups_display_mode: 'default' as const,
+  enable_auto_launch: false,
+  enable_silent_start: false,
+  enable_external_controller: false,
+  start_page: '/',
+  auto_check_update: false,
 }
 
 // Mutable so the disconnect switch in the preview actually does something.
@@ -264,6 +280,20 @@ const clashInfo = {
 
 // Mutable so a mode click in the preview actually sticks. Kept next to the
 // fixtures rather than inside the IPC table so the reset point is obvious.
+// The runtime clash config is mutable: patch_clash_config merges into it so
+// controls that read the core config (log level, LAN, IPv6, unified delay)
+// keep their selected state after the patch's revalidation. A static object
+// here made every switch bounce back in the preview (bb, 11-14).
+let clashConfig = {
+  mode: 'rule',
+  'mixed-port': 7887,
+  'log-level': 'info',
+  ipv6: false,
+  'allow-lan': false,
+  'unified-delay': false,
+  tun: { enable: false },
+}
+
 // `state=direct` and `state=empty-global` boot straight into their mode for the
 // address-switch and DIRECT-default checks.
 let mockMode =
@@ -324,8 +354,8 @@ const HANDLERS: Record<string, () => unknown> = {
   get_runtime_state: () => runtimeState(),
   get_clash_info: () => ({ ...clashInfo, clash_mode: mockMode }),
   get_clash_mode: () => (running ? mockMode : null),
-  get_runtime_config: () => ({ mode: 'rule', 'mixed-port': 7887, tun: { enable: false } }),
-  get_clash_config: () => ({ mode: 'rule', 'mixed-port': 7887, tun: { enable: false } }),
+  get_runtime_config: () => ({ ...clashConfig }),
+  get_clash_config: () => ({ ...clashConfig }),
   get_system_proxy: () => ({ enable: false, server: '', bypass: '' }),
   get_auto_proxy: () => ({ enable: false, url: '' }),
   get_sys_proxy: () => ({ enable: false, server: '', bypass: '' }),
@@ -373,6 +403,14 @@ proxies:
   // The tunnel switch (A semantics): writes enable_system_proxy /
   // enable_tun_mode into the fixture so `get_verge_config` reflects it and the
   // UI state flips. Without this the preview could not show the switch working.
+  patch_clash_config: (args) => {
+    const patch = (args as { payload?: Record<string, unknown> } | undefined)
+      ?.payload
+    if (patch) {
+      clashConfig = { ...clashConfig, ...patch } as typeof clashConfig
+    }
+    return null
+  },
   patch_verge_config: (args) => {
     const patch = (args as { payload?: Record<string, unknown> } | undefined)
       ?.payload

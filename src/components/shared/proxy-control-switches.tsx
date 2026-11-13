@@ -11,6 +11,7 @@ import { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { type DialogRef, Switch, TooltipIcon } from '@/components/base'
+import { ArkSwitch } from '@/components/setting/mods/ark-switch'
 import { SysproxyViewer } from '@/components/setting/mods/sysproxy-viewer'
 import { TunViewer } from '@/components/setting/mods/tun-viewer'
 import { useServiceUninstaller } from '@/hooks/use-service-uninstaller'
@@ -24,6 +25,16 @@ interface ProxySwitchProps {
   label?: string
   onError?: (err: Error) => void
   noRightPadding?: boolean
+  /** Visible note under the label (settings page ark restyle). */
+  note?: string
+  /** Render the square ark switch instead of the round MUI one. */
+  arkSwitch?: boolean
+  /**
+   * Whether the row exposes its detail dialog (the gear). The settings page
+   * hides it once those dialogs leave the main view (user, 11-13); the home
+   * card still opens them.
+   */
+  showDetail?: boolean
 }
 
 interface SwitchRowProps {
@@ -32,6 +43,13 @@ interface SwitchRowProps {
   disabled?: boolean
   infoTitle: string
   onInfoClick?: () => void
+  showDetail?: boolean
+  /** Visible note under the label (settings page ark restyle). */
+  note?: string
+  /** Render the square ark switch instead of the round MUI one. */
+  arkSwitch?: boolean
+  /** ArkSwitch tone: the TUN row uses the assault red. */
+  tone?: 'accent' | 'raid'
   extraIcons?: React.ReactNode
   /** Return false to roll back without reporting an error. */
   onToggle: (value: boolean) => Promise<boolean | void>
@@ -49,6 +67,10 @@ const SwitchRow = ({
   disabled,
   infoTitle,
   onInfoClick,
+  showDetail = true,
+  note,
+  arkSwitch = false,
+  tone = 'accent',
   extraIcons,
   onToggle,
   onError,
@@ -86,6 +108,7 @@ const SwitchRow = ({
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
+        gap: 2,
         p: 1,
         pr: 2,
         borderRadius: 1.5,
@@ -96,33 +119,64 @@ const SwitchRow = ({
         transition: 'background-color 0.3s',
       }}
     >
-      <Box sx={{ display: 'flex', alignItems: 'center' }}>
-        {active ? (
-          <PlayCircleOutlineRounded sx={{ color: 'success.main', mr: 1 }} />
-        ) : (
-          <PauseCircleOutlineRounded sx={{ color: 'text.disabled', mr: 1 }} />
+      <Box sx={{ display: 'flex', alignItems: 'center', flex: 1, minWidth: 0 }}>
+        {/* The play/pause glyph flipped on every toggle and nudged the label
+            sideways (user report, 11-14); the settings page drops it and the
+            home card keeps it. */}
+        {!arkSwitch &&
+          (active ? (
+            <PlayCircleOutlineRounded sx={{ color: 'success.main', mr: 1 }} />
+          ) : (
+            <PauseCircleOutlineRounded sx={{ color: 'text.disabled', mr: 1 }} />
+          ))}
+        <Box>
+          <Typography
+            variant="subtitle1"
+            sx={{ fontWeight: 500, fontSize: '15px' }}
+          >
+            {label}
+          </Typography>
+          {note && (
+            <Typography
+              variant="caption"
+              sx={{
+                display: 'block',
+                fontSize: 12,
+                lineHeight: 1.5,
+                color: 'var(--ark-text-2)',
+                '&::before': { content: '"*"', color: 'var(--ark-text-3)', mr: '2px' },
+              }}
+            >
+              {note}
+            </Typography>
+          )}
+        </Box>
+        {showDetail && (
+          <TooltipIcon
+            title={infoTitle}
+            icon={SettingsRounded}
+            onClick={onInfoClick}
+            sx={{ ml: 1 }}
+          />
         )}
-        <Typography
-          variant="subtitle1"
-          sx={{ fontWeight: 500, fontSize: '15px' }}
-        >
-          {label}
-        </Typography>
-        <TooltipIcon
-          title={infoTitle}
-          icon={SettingsRounded}
-          onClick={onInfoClick}
-          sx={{ ml: 1 }}
-        />
         {extraIcons}
       </Box>
 
-      <Switch
-        edge="end"
-        disabled={disabled}
-        checked={checked}
-        onChange={handleChange}
-      />
+      {arkSwitch ? (
+        <ArkSwitch
+          checked={checked}
+          disabled={disabled}
+          tone={tone}
+          onChange={(_, value) => handleChange(undefined as any, value)}
+        />
+      ) : (
+        <Switch
+          edge="end"
+          disabled={disabled}
+          checked={checked}
+          onChange={handleChange}
+        />
+      )}
     </Box>
   )
 }
@@ -131,6 +185,9 @@ const ProxyControlSwitches = ({
   label,
   onError,
   noRightPadding = false,
+  showDetail = true,
+  note,
+  arkSwitch = false,
 }: ProxySwitchProps) => {
   const { t } = useTranslation()
   const { verge, mutateVerge, patchVerge } = useVerge()
@@ -187,6 +244,9 @@ const ProxyControlSwitches = ({
           active={systemProxyIndicator}
           infoTitle={t('settings.sections.proxyControl.tooltips.systemProxy')}
           onInfoClick={() => sysproxyRef.current?.open()}
+          showDetail={showDetail}
+          note={note}
+          arkSwitch={arkSwitch}
           onToggle={handleSystemProxyToggle}
           onError={onError}
           highlight={systemProxyIndicator}
@@ -199,6 +259,10 @@ const ProxyControlSwitches = ({
           active={(enable_tun_mode && isTunModeAvailable) || false}
           infoTitle={t('settings.sections.proxyControl.tooltips.tunMode')}
           onInfoClick={() => tunRef.current?.open()}
+          showDetail={showDetail}
+          note={note}
+          arkSwitch={arkSwitch}
+          tone="raid"
           onToggle={handleTunToggle}
           onError={onError}
           highlight={(enable_tun_mode && isTunModeAvailable) || false}

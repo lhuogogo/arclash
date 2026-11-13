@@ -691,6 +691,10 @@ export interface TranslationResources {
     }
     settings: {
       components: {
+        arkSwitch: {
+          off: string
+          on: string
+        }
         verge: {
           advanced: {
             actions: {
@@ -705,6 +709,7 @@ export interface TranslationResources {
               openConfDir: string
               openCoreDir: string
               openDevTools: string
+              openDirMenu: string
               openLogsDir: string
               runtimeConfig: string
               vergeVersion: string
@@ -725,11 +730,13 @@ export interface TranslationResources {
               browse: string
             }
             fields: {
+              backupSetting: string
               copyEnvType: string
               hotkeySetting: string
               language: string
               layoutSetting: string
               misc: string
+              runtimeConfig: string
               startPage: string
               startupScript: string
               themeMode: string
@@ -1245,9 +1252,19 @@ export interface TranslationResources {
         actions: {
           github: string
           manual: string
+          resetSettings: string
           telegram: string
         }
         actionsGroupLabel: string
+        nav: {
+          advanced: string
+          basic: string
+          system: string
+          theme: string
+        }
+        notifications: {
+          resetPlaceholder: string
+        }
         title: string
       }
       sections: {
@@ -1305,6 +1322,8 @@ export interface TranslationResources {
               }
             }
             tooltips: {
+              allowLan: string
+              externalController: string
               logLevel: string
               networkInterface: string
               openUwpTool: string
@@ -1392,8 +1411,12 @@ export interface TranslationResources {
             tunMode: string
           }
           tooltips: {
+            autoLaunch: string
             silentStart: string
           }
+        }
+        theme: {
+          title: string
         }
       }
       statuses: {

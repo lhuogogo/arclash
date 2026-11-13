@@ -20,7 +20,6 @@ import { useTranslation } from 'react-i18next'
 import { BaseDialog, DialogRef, Switch, TooltipIcon } from '@/components/base'
 import { DEFAULT_HOVER_DELAY } from '@/components/proxy/proxy-group-navigator'
 import { useVerge } from '@/hooks/use-verge'
-import { useWindowDecorations } from '@/hooks/use-window'
 import { copyIconFile, getAppDir } from '@/services/cmds'
 import { mutate } from '@/services/mutate'
 import { showNotice } from '@/services/notice-service'
@@ -58,7 +57,6 @@ export const LayoutViewer = forwardRef<DialogRef>((_, ref) => {
   const [sysproxyIcon, setSysproxyIcon] = useState('')
   const [tunIcon, setTunIcon] = useState('')
 
-  const { decorated, toggleDecorations } = useWindowDecorations()
 
   useEffect(() => {
     initIconPath()
@@ -124,57 +122,6 @@ export const LayoutViewer = forwardRef<DialogRef>((_, ref) => {
         <Item>
           <ListItemText
             primary={t(
-              'settings.components.verge.layout.fields.preferSystemTitlebar',
-            )}
-          />
-          <GuardState
-            value={decorated}
-            valueProps="checked"
-            onCatch={onError}
-            onFormat={onSwitchFormat}
-            onChange={async () => {
-              await toggleDecorations()
-            }}
-          >
-            <Switch edge="end" />
-          </GuardState>
-        </Item>
-
-        <Item>
-          <ListItemText
-            primary={t('settings.components.verge.layout.fields.trafficGraph')}
-          />
-          <GuardState
-            value={verge?.traffic_graph ?? true}
-            valueProps="checked"
-            onCatch={onError}
-            onFormat={onSwitchFormat}
-            onChange={(e) => onChangeData({ traffic_graph: e })}
-            onGuard={(e) => patchVerge({ traffic_graph: e })}
-          >
-            <Switch edge="end" />
-          </GuardState>
-        </Item>
-
-        <Item>
-          <ListItemText
-            primary={t('settings.components.verge.layout.fields.memoryUsage')}
-          />
-          <GuardState
-            value={verge?.enable_memory_usage ?? true}
-            valueProps="checked"
-            onCatch={onError}
-            onFormat={onSwitchFormat}
-            onChange={(e) => onChangeData({ enable_memory_usage: e })}
-            onGuard={(e) => patchVerge({ enable_memory_usage: e })}
-          >
-            <Switch edge="end" />
-          </GuardState>
-        </Item>
-
-        <Item>
-          <ListItemText
-            primary={t(
               'settings.components.verge.layout.fields.proxyGroupIcon',
             )}
           />
@@ -185,28 +132,6 @@ export const LayoutViewer = forwardRef<DialogRef>((_, ref) => {
             onFormat={onSwitchFormat}
             onChange={(e) => onChangeData({ enable_group_icon: e })}
             onGuard={(e) => patchVerge({ enable_group_icon: e })}
-          >
-            <Switch edge="end" />
-          </GuardState>
-        </Item>
-
-        <Item>
-          <ListItemText
-            primary={t(
-              'settings.components.verge.layout.fields.pauseRenderTrafficStatsOnBlur',
-            )}
-          />
-          <GuardState
-            value={verge?.pause_render_traffic_stats_on_blur ?? true}
-            valueProps="checked"
-            onCatch={onError}
-            onFormat={onSwitchFormat}
-            onChange={(e) =>
-              onChangeData({ pause_render_traffic_stats_on_blur: e })
-            }
-            onGuard={(e) =>
-              patchVerge({ pause_render_traffic_stats_on_blur: e })
-            }
           >
             <Switch edge="end" />
           </GuardState>

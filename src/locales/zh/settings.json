@@ -3,20 +3,31 @@
     "actions": {
       "manual": "使用手册",
       "telegram": "Telegram 频道",
-      "github": "GitHub 项目地址"
+      "github": "GitHub 项目地址",
+      "resetSettings": "重置设置"
     },
     "actionsGroupLabel": "设置相关链接",
-    "title": "设置"
+    "title": "设置",
+    "notifications": {
+      "resetPlaceholder": "重置功能尚未实现"
+    },
+    "nav": {
+      "system": "系统",
+      "basic": "基础",
+      "theme": "主题",
+      "advanced": "高级"
+    }
   },
   "sections": {
     "system": {
-      "title": "系统设置",
+      "title": "系统",
       "toggles": {
         "tunMode": "虚拟网卡模式",
         "systemProxy": "系统代理"
       },
       "tooltips": {
-        "silentStart": "程序启动时以后台模式运行，不显示程序面板"
+        "silentStart": "程序启动时以后台模式运行，不显示程序面板",
+        "autoLaunch": "系统登录后自动启动 ArClash"
       },
       "fields": {
         "autoLaunch": "开机自启",
@@ -140,7 +151,9 @@
           "networkInterface": "网络接口",
           "unifiedDelay": "开启统一延迟时，会进行两次延迟测试，以消除连接握手等带来的不同类型节点的延迟差异",
           "logLevel": "仅对日志目录 Service 文件夹下的内核日志文件生效",
-          "openUwpTool": "Windows 8 开始限制 UWP 应用（如微软商店）直接访问本地主机的网络服务，使用此工具可绕过该限制"
+          "openUwpTool": "Windows 8 开始限制 UWP 应用（如微软商店）直接访问本地主机的网络服务，使用此工具可绕过该限制",
+          "externalController": "开启后 mihomo 会监听 HTTP 控制端口，供 Web UI 与第三方工具连接；关闭不影响 ArClash 自身控制内核",
+          "allowLan": "允许局域网内其他设备通过本机代理上网"
         },
         "options": {
           "logLevel": {
@@ -152,12 +165,19 @@
           }
         }
       }
+    },
+    "theme": {
+      "title": "主题"
     }
   },
   "components": {
+    "arkSwitch": {
+      "on": "开启",
+      "off": "关闭"
+    },
     "verge": {
       "basic": {
-        "title": "Verge 基础设置",
+        "title": "基础设置",
         "actions": {
           "browse": "浏览"
         },
@@ -176,22 +196,24 @@
           "themeSetting": "主题设置",
           "layoutSetting": "界面设置",
           "misc": "杂项设置",
-          "hotkeySetting": "热键设置"
+          "hotkeySetting": "热键设置",
+          "backupSetting": "备份设置",
+          "runtimeConfig": "当前配置"
         }
       },
       "advanced": {
-        "title": "Verge 高级设置",
+        "title": "高级设置",
         "tooltips": {
           "backupInfo": "支持本地或 WebDAV 方式备份配置文件",
           "openConfDir": "如果软件运行异常，!备份!并删除此文件夹下的所有文件，重启软件",
           "liteMode": "关闭 GUI 界面，仅保留内核运行"
         },
         "actions": {
-          "copyVersion": "复制 Verge 版本号"
+          "copyVersion": "复制 ArClash 版本号"
         },
         "notifications": {
           "latestVersion": "当前已是最新版本",
-          "versionCopied": "Verge 版本已复制到剪贴板"
+          "versionCopied": "ArClash 版本已复制到剪贴板"
         },
         "fields": {
           "backupSetting": "备份设置",
@@ -199,12 +221,13 @@
           "openConfDir": "配置目录",
           "openCoreDir": "内核目录",
           "openLogsDir": "日志目录",
+          "openDirMenu": "打开目录",
           "checkUpdates": "检查更新",
           "openDevTools": "开发者工具",
           "liteModeSettings": "轻量模式设置",
           "exit": "退出",
           "exportDiagnostics": "导出诊断信息",
-          "vergeVersion": "Verge 版本"
+          "vergeVersion": "ArClash 版本"
         }
       },
       "theme": {
@@ -672,11 +695,11 @@
         "coreAlreadyRunning": "无法启动内核：已有内核进程正在运行。请退出相关应用或清理残留进程后重试。若仍无法解决，请重启电脑。"
       },
       "sysproxy": {
-        "privilegeRequired": "无法设置系统代理：macOS 以权限不足为由拒绝了这次修改。请安装 Clash Verge 服务；管理员也可以在系统设置 → 隐私与安全性的高级选项中，关闭访问系统范围设置需要管理员密码的要求。",
+        "privilegeRequired": "无法设置系统代理：macOS 以权限不足为由拒绝了这次修改。请安装 ArClash 服务；管理员也可以在系统设置 → 隐私与安全性的高级选项中，关闭访问系统范围设置需要管理员密码的要求。",
         "directFallback": "系统代理设置失败，已回退为直连。",
         "guardStopped": "系统代理守卫连续多次失败后已停止，系统代理不再被自动维持。",
-        "sidecarWhileServiceReady": "系统代理设置失败：Clash Verge 服务已就绪，但内核仍以 Sidecar 运行。重启内核即可切换到服务模式。",
-        "coreNotReady": "无法开启系统代理：内核尚未运行。请先启动内核（或安装/修复 Clash Verge 服务）后重试。",
+        "sidecarWhileServiceReady": "系统代理设置失败：ArClash 服务已就绪，但内核仍以 Sidecar 运行。重启内核即可切换到服务模式。",
+        "coreNotReady": "无法开启系统代理：内核尚未运行。请先启动内核（或安装/修复 ArClash 服务）后重试。",
         "systemCallFailed": "系统代理写入失败：Windows 系统调用未成功，通常是瞬时故障。请稍后重试。"
       }
     },
