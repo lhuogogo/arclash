@@ -3,7 +3,6 @@
     "actions": {
       "updateAll": "Tüm Profilleri Güncelle",
       "viewRuntimeConfig": "Çalışma Zamanı Yapılandırmasını Görüntüle",
-      "reactivate": "Profilleri Yeniden Etkinleştir",
       "import": "İçe Aktar"
     },
     "batch": {

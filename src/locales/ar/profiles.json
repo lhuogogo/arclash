@@ -3,7 +3,6 @@
     "actions": {
       "updateAll": "تحديث جميع الملفات الشخصية",
       "viewRuntimeConfig": "عرض تكوين وقت التشغيل",
-      "reactivate": "إعادة تنشيط الملفات الشخصية",
       "import": "استيراد"
     },
     "batch": {

@@ -10,6 +10,7 @@ import { cmdTestDelay } from '@/services/cmds'
 import delayManager from '@/services/delay'
 import { showNotice } from '@/services/notice-service'
 import { useTestAllCounter } from '@/store/app-store-context'
+import { latencyColorOf } from '@/utils/latency-tone'
 
 import { TestBox } from './test-box'
 
@@ -152,7 +153,7 @@ export const TestItem = ({ itemData, onEdit, onDelete: removeTest }: Props) => {
                 onDelay()
               }}
               sx={({ palette }) => ({
-                color: delayManager.formatDelayColor(delay),
+                color: latencyColorOf(delay),
                 ':hover': {
                   bgcolor: alpha(palette.primary.main, 0.15),
                 },

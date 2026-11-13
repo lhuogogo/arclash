@@ -28,6 +28,13 @@ export default defineConfig({
     outDir: '../dist',
     emptyOutDir: true,
     chunkSizeWarningLimit: 4000,
+    rollupOptions: {
+      input: {
+        // The app shell. `preview.html` is added by the preview config below,
+        // never here: a preview bundle must not ship inside the app.
+        main: path.resolve('./src/index.html'),
+      },
+    },
   },
   resolve: {
     alias: {

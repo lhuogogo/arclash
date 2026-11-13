@@ -3,7 +3,6 @@
     "actions": {
       "updateAll": "Atualizar todos os perfis",
       "viewRuntimeConfig": "Ver configuração em execução",
-      "reactivate": "Reativar perfis",
       "import": "Importar"
     },
     "batch": {

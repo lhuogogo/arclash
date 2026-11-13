@@ -106,6 +106,30 @@ export function findCurrentGroupMember(
   return undefined
 }
 
+/**
+ * Follow `now` through nested groups until it lands on a node.
+ *
+ * A selector's current member is often another selector (a "自动选择" layer),
+ * and stopping at the first hop made every consumer read "no node selected" —
+ * the node rows went blank in exactly the modes where the outer group pointed
+ * at a nested one. The depth cap only guards against a `now` cycle, which a
+ * healthy core never produces.
+ */
+export function resolveCurrentNode(
+  view: ProxyViewV1,
+  group: ProxyGroupView | undefined,
+): InteractableProxyMemberOccurrence | undefined {
+  let current = group
+  for (let depth = 0; current && depth < 8; depth++) {
+    const found = findCurrentGroupMember(view, current)
+    if (!found) return undefined
+    if (found.member.kind === 'node') return found
+    if (found.member.kind !== 'group') return undefined
+    current = found.member.group
+  }
+  return undefined
+}
+
 export const providerNameOf = (node: ProxyNodeView) =>
   node.source.kind === 'provider' ? node.source.providerName : undefined
 

@@ -12,7 +12,6 @@ import {
   ContentPasteRounded,
   DeleteRounded,
   IndeterminateCheckBoxRounded,
-  LocalFireDepartmentRounded,
   RefreshRounded,
   TextSnippetOutlined,
 } from '@mui/icons-material'
@@ -695,6 +694,7 @@ const ProfilePage = () => {
     <BasePage
       full
       title={t('profiles.page.title')}
+      subtitle="PROFILES"
       contentStyle={{ height: '100%' }}
       header={
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -726,15 +726,6 @@ const ProfilePage = () => {
                 onClick={() => configRef.current?.open()}
               >
                 <TextSnippetOutlined />
-              </IconButton>
-
-              <IconButton
-                size="small"
-                color="primary"
-                title={t('profiles.page.actions.reactivate')}
-                onClick={() => onEnhance(true)}
-              >
-                <LocalFireDepartmentRounded />
               </IconButton>
 
               {/* 故障检测和紧急恢复按钮 */}

@@ -1,0 +1,1295 @@
+// ============================================================
+// Arknights three-column layout
+// ------------------------------------------------------------
+// Replaces the original two-column shell (left sidebar + content).
+//
+//   88px status rail | 1fr main view | 344px button matrix
+//
+// Must be CSS Grid, not flex. Measured: a flex row of the same three parts
+// renders 88 + 630 + 344 = 1062 and overflows a 940px window; flex:1 1 0,
+// min-width:0 and overflow:hidden all fail to shrink the middle track,
+// because the right column's min-content width wins.
+//
+// Arithmetic for the default 940x700 window:
+//   88 + 476 + 344 = 908, plus padding 16 and gaps 16 -> 940 exactly.
+// ============================================================
+
+.ark-shell {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--ark-bg, #2d2e2e);
+}
+
+// Thin title bar carrying the drag region and window controls.
+.ark-titlebar {
+  flex: 0 0 auto;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0 8px;
+  app-region: drag;
+}
+
+// Three columns: 88px rail, flexible main view, 268px button matrix.
+// The matrix was 344px until the v9 pass; it now carries the same six blocks
+// at a narrower width so the main view gets the space instead. Measured at the
+// 920x520 window: 88 + 268 + 2 gaps + 16 padding leaves 540 for the main view,
+// which is what the status page was designed against.
+.ark-body {
+  flex: 1;
+  min-height: 0;
+  padding: 8px;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 88px minmax(0, 1fr) 268px;
+  grid-template-rows: minmax(0, 1fr);
+  gap: 8px;
+}
+
+// ---------- Left status rail ----------
+.ark-rail {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 0;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.ark-rail__uptime {
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: var(--ark-text, #fff);
+  font-variant-numeric: tabular-nums;
+}
+
+.ark-rail__uptime-label {
+  font-size: 9px;
+  color: var(--ark-text-3, #6b6b6b);
+  text-align: center;
+  margin-top: 1px;
+}
+
+// Power button: 45-degree cut corner, inset stroke because clip-path
+// would clip a real border away.
+.ark-power {
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  color: var(--ark-accent, #19b4e2);
+  box-shadow: inset 0 0 0 1px currentColor;
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    100% calc(100% - 7px),
+    calc(100% - 7px) 100%,
+    0 100%
+  );
+  cursor: pointer;
+  padding: 0;
+}
+
+.ark-power:hover {
+  background: rgba(25, 180, 226, 0.18);
+}
+
+// Disconnected state is the only place red is allowed here: it signals
+// an interruption, not decoration.
+.ark-power.is-disconnected {
+  color: var(--ark-raid, #ff4d4d);
+}
+
+.ark-rail__traffic {
+  margin-top: auto;
+  text-align: center;
+  font-size: 9px;
+  line-height: 1.7;
+  color: var(--ark-text-2, #9a9a9a);
+  font-variant-numeric: tabular-nums;
+}
+
+// ---------- Main view ----------
+.ark-main {
+  position: relative;
+  min-width: 0;
+  overflow: hidden;
+  background: var(--ark-panel, #373737);
+}
+
+// Each page is absolutely stacked so switching is instant and scroll
+// position per page is preserved.
+.ark-page {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 14px;
+  display: none;
+}
+
+.ark-page.is-active {
+  display: block;
+}
+
+.ark-page::-webkit-scrollbar {
+  width: 6px;
+}
+
+.ark-page::-webkit-scrollbar-thumb {
+  background: #4a4a4a;
+}
+
+// ---------- Right button matrix ----------
+.ark-rightcol {
+  min-width: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+// One row of the matrix. v9 stacks four rows and lets the pairs share width,
+// so the column reads status / proxies+profiles / connections / download+
+// settings instead of six equal strips.
+//
+// Row heights are deliberately unequal (v9 measured against the 920x520
+// window): status takes what its content needs, the two pair rows are short,
+// and connections absorbs the remainder. A single pair row is 96px tall and
+// the download row 92px, so both stay compact while connections grows.
+.ark-row {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+}
+
+.ark-row--pair {
+  flex-direction: row;
+  gap: 8px;
+}
+
+.ark-row--pair > .ark-btn {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+// Proxies / profiles pair. v9 (`prototype/v9.html:498`/`:502`/`:503`) splits this
+// row 66:34, with proxies on the left. Measured in the running app before the
+// change: both blocks were 130px wide — an even split that left the node name
+// and its latency competing for space while the profile block sat half empty.
+// v9's own comment records that 74:26 was tried and "配置" collided with its
+// RS-02 code at 64px, so 66:34 is the tested ratio, not a guess.
+//
+// Split moved from 66:34 to 60:40 after the subscription block was reported as
+// deformed: at 34% the two-character title "订阅" wrapped onto a second line
+// (the compact-label guideline forbids that), and the profile name had ~40px
+// for text. 40% gives the title room on one line and the name room to breathe,
+// while proxies keeps enough width for a node name plus its latency.
+.ark-row--proxies > .ark-btn:first-child {
+  flex: 0 0 60%;
+}
+
+.ark-row--proxies > .ark-btn:last-child {
+  flex: 1 1 0;
+}
+
+// Status: fixed height, matching v9's `flex: 0 0 153px` (`prototype/v9.html:474`).
+// It was `0 0 auto`, which let the content decide and parked it at 114px in the
+// running app — 39px shorter than v9, and shorter than the connections block
+// below it. That is exactly what the user reported as "状态的按钮那么小".
+.ark-row--status {
+  flex: 0 0 153px;
+}
+
+// Proxies / profiles pair. v9 uses 82px here (`prototype/v9.html:499`); the row
+// was 85px, close enough that the 3px difference is not what the user saw. The
+// width split above is the real fix for this row.
+.ark-row--proxies {
+  flex: 0 0 82px;
+}
+
+// Live connections: takes the leftover height, which is what makes the column
+// read as "one tall block among short ones" rather than six equal cards.
+.ark-row--connections {
+  flex: 1 1 0;
+  min-height: 71px;
+}
+
+// The connections body fills the tall row and centres its figures, so the
+// surplus height is split above and below instead of pooling in one void.
+.ark-row--connections .ark-btn__body {
+  flex: 1 1 auto;
+}
+
+// Download / settings pair. Measured in the running app via CDP against the
+// live DOM: the download surface needs 106px of content (16 head + 6 margin +
+// 16 icon + 4 margin + 47 body + 15 latin + 20 padding), but the row only gave
+// it 102. The shortfall was split evenly by justify-content:center, so the
+// title poked above the surface and the caption below it — that is why the
+// header looked "covered by the block above". Height sweep 104/106/108/110:
+// 104 still clips 1px, 106 is exactly flush, 108 leaves 1px top and bottom.
+// 108 wins — flush reads as cramped against the cut corner. Connections yields
+// the height and keeps ~139px.
+.ark-row--download {
+  flex: 0 0 108px;
+}
+
+// The cut corner needs the nested wrapper technique, NOT an inset stroke.
+// Measured on a 160x100 box with a 20px cut, sampling 25 points along the
+// diagonal: an inset box-shadow reads 160 at the ends but drops to 46 in the
+// middle — the panel is 45.8, so the stroke is simply gone. clip-path clips
+// the inset shadow along with everything else inside the shape.
+// The nested wrapper keeps 99 along the whole diagonal.
+// So: outer element paints the stroke colour, inner element is inset by the
+// stroke width and carries a slightly larger cut.
+//
+// Inner cut derivation (this is where it is easy to get wrong):
+//   outer diagonal:  x + y = W + H - c
+//   inner box sits at padding 1, so its own coords are (u,v) = (x-1, y-1)
+//   inner diagonal:  u + v = (W-2) + (H-2) - c'
+//                 -> x + y = W + H - 2 - c'
+//   perpendicular distance between the two parallels:
+//     |(W+H-c) - (W+H-2-c')| / sqrt(2) = |c' - c + 2| / sqrt(2)
+//   for a 1px stroke: c' = c - 2 + sqrt(2) ≈ c - 0.586
+//
+// Using c' = c - 2 makes the distance 0: both diagonals coincide and the
+// stroke vanishes along the cut. Verified numerically.
+.ark-btn {
+  --cut: 12px;
+  --cut-inner: calc(var(--cut) - 0.586px);
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  cursor: pointer;
+  padding: 1px;
+  background: var(--ark-border, rgba(255, 255, 255, 0.1));
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    100% calc(100% - var(--cut)),
+    calc(100% - var(--cut)) 100%,
+    0 100%
+  );
+  transition: background 0.12s ease-out;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  border: 0;
+}
+
+// Inner surface: carries the panel fill, cut 2px smaller than the wrapper so
+// the 1px ring stays visible along the diagonal.
+.ark-btn__surface {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  background: var(--ark-panel, #373737);
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    100% calc(100% - var(--cut-inner)),
+    calc(100% - var(--cut-inner)) 100%,
+    0 100%
+  );
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 10px 12px;
+}
+
+.ark-btn:hover {
+  background: var(--ark-panel-hover, #414141);
+}
+
+.ark-btn:hover > .ark-btn__surface {
+  background: var(--ark-panel-hover, #414141);
+}
+
+.ark-btn.is-active {
+  background: var(--ark-accent, #19b4e2);
+}
+
+.ark-btn.is-active > .ark-btn__surface {
+  background: var(--ark-panel-2, #3d3d3d);
+}
+
+.ark-btn__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 6px;
+  min-width: 0;
+}
+
+.ark-btn__label {
+  // Takes the slack so the code and the counter stay pinned right instead of
+  // being spread evenly by space-between when all three are present.
+  flex: 1 1 auto;
+  // A block title is a compact label: it must stay on one line. At 34% width
+  // "订阅" wrapped to a second row and pushed the header down, which is what
+  // read as a deformed block. min-width:0 lets it shrink rather than wrap.
+  min-width: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ark-text, #fff);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+// Registry code, v6 RS-00..RS-05. Decoration only: 8px muted, wide tracking,
+// sitting on the header baseline opposite the label.
+.ark-btn__code {
+  flex: 0 0 auto;
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: var(--ark-text-3, #a8a8a8);
+  font-variant-numeric: tabular-nums;
+}
+
+// 16x16 line-art glyph. Muted by default, accent when the block is the current
+// page — same rule as the v6 prototype.
+.ark-btn__icon {
+  flex: 0 0 auto;
+  display: block;
+  margin-top: 6px;
+  color: var(--ark-text-2, #b4b4b4);
+  line-height: 0;
+
+  svg {
+    display: block;
+  }
+}
+
+.ark-btn:hover .ark-btn__icon,
+.ark-btn.is-active .ark-btn__icon {
+  color: var(--ark-accent, #19b4e2);
+}
+
+// Latin name, e.g. PROXIES. Pushed to the bottom of the block so the block
+// reads header / icon / value / latin, matching the prototype.
+.ark-btn__latin {
+  flex: 0 0 auto;
+  margin-top: auto;
+  padding-top: 4px;
+  font-size: 9px;
+  letter-spacing: 1.4px;
+  color: var(--ark-text-3, #a8a8a8);
+  text-transform: uppercase;
+}
+
+.ark-btn__trailing {
+  font-size: 10px;
+  color: var(--ark-text-2, #9a9a9a);
+  font-variant-numeric: tabular-nums;
+}
+
+// The surface is a flex column and the short blocks (proxy pair, traffic pair)
+// have little spare height, so every text row must refuse to shrink: without
+// this the value line collapses to 0px and silently disappears.
+.ark-btn__sub {
+  flex: 0 0 auto;
+  font-size: 9.5px;
+  color: var(--ark-text-2, #9a9a9a);
+  margin-top: 3px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// Full-strength variant for a sublabel that is the block's subject rather than
+// a secondary fact (the selected subscription name in RS-02). Colour only — the
+// size and the single-line ellipsis stay as they are.
+.ark-btn__sub.is-bright {
+  color: var(--ark-text, #fff);
+}
+
+.ark-btn__body {
+  // Content-sized, not flex:1: when the body grew to fill the block it stole
+  // height from the header and the title slid under the block above. Each
+  // block's row height is already tuned to its content, so the body only needs
+  // to sit below the header and push the latin caption down.
+  flex: 0 0 auto;
+  margin-top: 4px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  // Centred, not bottom-aligned: the connections row is the one that absorbs
+  // leftover column height, so with only two figures bottom alignment parks
+  // them against the caption and leaves one large void above.
+  justify-content: center;
+  gap: 2px;
+}
+
+// Uptime headline. Tabular figures stop the width jittering as the minutes
+// tick over.
+//
+// The divider (padding-right + border-right) used to live on this shared class
+// and leaked into every block using it — the download block grew a stray
+// hairline to the right of its speed value. It now only applies inside the
+// RS-00 row, where the divider was actually wanted (v9 `stat-big`,
+// prototype/v9.html:549-553).
+//
+// `border-right`, not an inset box-shadow: the theme's
+// `* { box-shadow: none !important }` erases inset shadows, and a real border is
+// unaffected by it.
+.ark-btn__big {
+  display: flex;
+  align-items: center;
+  font-size: 21px;
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: 0.5px;
+  color: var(--ark-text, #fff);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+// RS-00 only: divider between the uptime and the state/mode pair.
+.ark-row1 .ark-btn__big {
+  padding-right: 12px;
+  border-right: 1px solid var(--ark-divider, rgba(255, 255, 255, 0.08));
+}
+
+// Download block (RS-04): 21px makes a long speed value overflow the card's
+// ~104px of content width, so the speed value gets its own smaller size instead
+// of shrinking the shared headline.
+.ark-btn__big--speed {
+  font-size: 16px;
+}
+
+// Muted line under the headline (connection state + mode).
+.ark-btn__sub2 {
+  font-size: 9px;
+  color: var(--ark-text-2, #b4b4b4);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+// Row one: uptime headline with the state and mode stacked to its right
+// (v9 figure 3 / prototype/v9.html:1199-1210). Side by side instead of
+// stacked, so the block spends one row where it used to spend three.
+// Row one mirrors v9's `stat-row1` (prototype/v9.html:548-556): the uptime and
+// the state/mode pair are separate cells divided by a hairline, and both are
+// stretched to the same height so the rule spans the full row.
+//
+// `align-items: baseline` was the alignment bug: it pinned the two blocks to the
+// uptime's baseline, so a 21px headline and an 11px label lined up on a
+// different vertical rhythm than v9's centred cells.
+.ark-row1 {
+  display: flex;
+  align-items: stretch;
+  gap: 12px;
+  min-width: 0;
+}
+
+// The state/mode pair. Two lines rather than one dotted line: `已连接` and the
+// mode name are different kinds of fact and the reference puts them on separate
+// baselines. `min-width: 0` + ellipsis keeps a long mode name from widening
+// the block past its fixed 153px.
+// The state/mode pair. Centred inside the stretched row so the two lines sit
+// optically level with the uptime beside them instead of dropping to a shared
+// baseline. `min-width: 0` + ellipsis keeps a long mode name from widening the
+// block past its fixed 153px.
+.ark-row1__state {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0;
+  min-width: 0;
+  line-height: 1.5;
+}
+
+.ark-row1__state-txt {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--ark-text, #fff);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ark-row1__mode {
+  font-size: 11px;
+  color: var(--ark-text-3, #a8a8a8);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+// Address and node on one line: address left, node and latency pushed right
+// (v9 `stat-ip`, figure 3). The address keeps the larger size because it is
+// what the block is read for; the node is the qualifier.
+.ark-btn__ipline {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  min-width: 0;
+  margin-top: 4px;
+  font-size: 13px;
+  letter-spacing: 0.2px;
+  color: var(--ark-text, #fff);
+  white-space: nowrap;
+}
+
+.ark-btn__ip-addr {
+  flex: 0 0 auto;
+  color: var(--ark-text, #fff);
+
+  // Invisible filler keeps the line's height when nothing is probed yet, so
+  // the rows below never move (zero-offset rule, user report 11-13).
+  &.is-filler {
+    visibility: hidden;
+  }
+}
+
+// The home block's mode word (user 11-13): it replaced the address + node line,
+// so it carries that line's weight and sits on the same baseline.
+.ark-btn__mode-en {
+  flex: 0 0 auto;
+  font-size: 11px;
+  letter-spacing: 0.6px;
+  color: var(--ark-text, #fff);
+}
+
+// Location reads as a qualifier on the address: smaller, still legible.
+// White, matching the address and the node name: the three parts of this line
+// are one statement (where traffic goes out), so none of them is secondary.
+// Direct mode still dims the node through opacity — that is separate from
+// colour and survives this change.
+.ark-btn__ip-geo {
+  flex: 0 0 auto;
+  font-size: 10px;
+  color: var(--ark-text, #fff);
+}
+
+// Node sits at the far end of the same line; `margin-left: auto` is what pushes
+// it right without a spacer element.
+.ark-btn__node {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  min-width: 0;
+  margin-left: auto;
+}
+
+.ark-btn__node-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 10px;
+  // White like the address beside it; direct mode dims it via opacity, not colour.
+  color: var(--ark-text, #fff);
+
+  // No node selected: an explicit prompt in the node's slot, muted so it reads
+  // as guidance rather than a selection.
+  &.is-placeholder {
+    color: var(--ark-text-3, #a8a8a8);
+  }
+}
+
+// Direct mode: the node stays listed but is not carrying traffic. Dimming is
+// the whole signal here — a text tag pushed content off the line and said what
+// the dimming already says.
+.ark-btn__node.is-unused .ark-btn__node-name {
+  opacity: 0.4;
+}
+
+// Disconnect switch inside the home block (v9 `stat-cta`,
+// prototype/v9.html:1208): white disc badge plus a letter-spaced label, the
+// same confirmation-button form as the rest of the Arknights surface. Raid red
+// is the destructive direction, so it is the only colour the connected state
+// may use here; disconnected flips to the accent because the action brings the
+// tunnel back.
+.ark-btn__cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex: 0 0 auto;
+  // Full width, not `flex-start`: the switch spans the block so its right edge
+  // lines up with the address line above it. `stretch` rather than a fixed
+  // width because the block's inner width changes with the window — a hard
+  // 242px would line up at one size and drift at every other.
+  align-self: stretch;
+  height: 28px;
+  min-height: 28px;
+  margin-top: 6px;
+  padding: 0 11px;
+  background: var(--ark-panel-3, #3a3a3a);
+  // !important for the same reason as the framed panels: the theme's
+  // `* { box-shadow: none !important }` would erase this hairline, leaving the
+  // button with no edge at all.
+  box-shadow: inset 0 0 0 1px var(--ark-border, rgba(255, 255, 255, 0.14)) !important;
+  border: 0;
+  cursor: pointer;
+  font: inherit;
+  transition: background 0.12s ease-out;
+}
+
+.ark-btn__cta:hover {
+  background: var(--ark-panel-2, #444);
+}
+
+.ark-btn__cta.is-raid {
+  box-shadow: inset 0 0 0 1px var(--ark-raid, #ff8a7a) !important;
+}
+
+// White disc. flex:0 0 auto is required: without it the flex row squeezes the
+// badge and the 8px glyph collapses to about 4px.
+.ark-btn__cta-badge {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: #fff;
+}
+
+.ark-btn__cta-txt {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--ark-text-2, #c8c8c8);
+}
+
+.ark-btn__cta.is-raid .ark-btn__cta-txt {
+  color: var(--ark-raid, #ff8a7a);
+}
+
+// Multi-column figure row (connections block). Numbers carry the weight, the
+// labels sit underneath.
+//
+// Centred, not left-aligned: the block is the tallest in the column and its
+// two figures used to hug the left edge with a wide void to their right. 18px
+// between the cells keeps them reading as one pair without letting them drift
+// to opposite corners; the guideline for adjacent targets is a minimum of 8px
+// and these are display figures, not targets, so a slightly wider gap is what
+// makes the pair look deliberate.
+.ark-cols {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  // 40px, not 18px: at 18px two four-digit figures (each ~49px wide at 20px
+  // font) sat close enough to read as one block — "两个 1000 可能会重叠". The
+  // worst case, 49+40+49 = 138, still fits the card's 242px of content width.
+  gap: 40px;
+  min-width: 0;
+  width: 100%;
+}
+
+.ark-cols__cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 0;
+}
+
+.ark-cols__n {
+  // 20px, not 24px: the connections row is the remainder of the column
+  // (~67px at 920x520) and 24px figures overflow it.
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--ark-text, #fff);
+  font-variant-numeric: tabular-nums;
+}
+
+.ark-cols__l {
+  font-size: 9px;
+  color: var(--ark-text-3, #a8a8a8);
+  margin-top: 3px;
+  white-space: nowrap;
+}
+
+// ---------- Data slots inside a matrix block ----------
+// The prototype fills each block with live values: a big number pair, a row of
+// three counters, a name + latency pair, a speed with a bar. These are the
+// shared pieces those rows are built from, so the components only compose
+// markup and never restate sizes.
+
+// Big value, e.g. "4h12" in the status block. Monospace so the digits do not
+// jitter while the value ticks.
+.ark-val {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+}
+
+.ark-val__big {
+  font-size: 21px;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -0.5px;
+  font-variant-numeric: tabular-nums;
+  color: var(--ark-text, #fff);
+}
+
+.ark-val__unit {
+  font-size: 9px;
+  color: var(--ark-text-3, #a8a8a8);
+}
+
+.ark-val__side {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+  font-size: 9px;
+  line-height: 1.35;
+  color: var(--ark-text-2, #b4b4b4);
+}
+
+.ark-val__side b {
+  color: var(--ark-text, #fff);
+  font-weight: 700;
+}
+
+// Three counters sharing one row, each with a muted label under it.
+.ark-counts {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  gap: 6px;
+  min-width: 0;
+}
+
+.ark-counts__cell {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+  border-left: 1px solid var(--ark-divider, rgba(255, 255, 255, 0.08));
+  padding-left: 7px;
+}
+
+.ark-counts__cell:first-child {
+  border-left: 0;
+  padding-left: 0;
+}
+
+.ark-counts__n {
+  font-size: 24px;
+  font-weight: 900;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+  color: var(--ark-text, #fff);
+}
+
+.ark-counts__l {
+  font-size: 9.5px;
+  color: var(--ark-text-3, #a8a8a8);
+  white-space: nowrap;
+}
+
+// Node name plus latency on one line. The name yields, the latency never does.
+.ark-node {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  min-width: 0;
+}
+
+.ark-node__name {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 10px;
+  color: var(--ark-text, #fff);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ark-node__ms {
+  flex: 0 0 auto;
+  font-size: 9px;
+  font-variant-numeric: tabular-nums;
+  color: var(--ark-text-3, #a8a8a8);
+}
+
+// Latency tiers follow the four rarity colours: fast is gold, then violet,
+// then blue, then green, and a failed probe is the raid red. Colour alone
+// never carries the value — the number is always printed next to it.
+.ark-lat--gold {
+  color: var(--ark-gold, #e8b84b);
+}
+
+.ark-lat--purple {
+  color: var(--ark-purple, #ce9cff);
+}
+
+.ark-lat--blue {
+  color: var(--ark-blue, #62b4f0);
+}
+
+.ark-lat--green {
+  color: var(--ark-green, #5cb85c);
+}
+
+.ark-lat--raid {
+  color: var(--ark-raid, #ff8a7a);
+}
+
+// One-line proxy readout inside the proxies block: node name takes the slack,
+// latency keeps its natural width so it never truncates.
+.ark-proxyline {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  min-width: 0;
+}
+
+.ark-proxyline__name {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 10px;
+  color: var(--ark-text, #fff);
+
+  // No node selected: the prompt keeps the line's height, muted so it reads as
+  // guidance rather than a selection.
+  &.is-placeholder {
+    color: var(--ark-text-3, #a8a8a8);
+  }
+}
+
+.ark-proxyline__ms {
+  flex: 0 0 auto;
+  font-size: 9px;
+}
+
+// Direct mode: the selected node stays visible but is not carrying traffic.
+// Dimming alone carries it — a text tag pushed the latency off the line and
+// repeated what the dimming already says.
+.ark-proxyline.is-unused .ark-proxyline__name,
+.ark-proxyline.is-unused .ark-proxyline__ms {
+  opacity: 0.4;
+}
+
+// Thin progress bar under a speed value.
+// Muted caption, e.g. "今日 1.31 GB".
+.ark-cap {
+  font-size: 9px;
+  color: var(--ark-text-3, #a8a8a8);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+// Status dot + word, e.g. "运行中 · 规则模式".
+.ark-state {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 9px;
+  color: var(--ark-green, #5cb85c);
+}
+
+.ark-state__dot {
+  width: 4px;
+  height: 4px;
+  flex: 0 0 auto;
+  background: currentColor;
+}
+
+
+// ---------- ArClash 确认按钮（令牌 §4.1） ----------
+// Rectangle, white circular badge, thick ✕. Used for the disconnect action at
+// the bottom of the matrix: it is an action, not a destination, so it does not
+// get the cut corner the six nav blocks use.
+.arkbtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 26px;
+  min-height: 26px;
+  padding: 0 10px;
+  cursor: pointer;
+  background: var(--ark-panel-alt, #333434);
+  box-shadow: inset 0 0 0 1px var(--ark-border);
+  border: 0;
+  color: var(--ark-text, #fff);
+  font: inherit;
+  transition: background 0.12s ease-out;
+}
+
+.arkbtn:hover {
+  background: var(--ark-panel-3, #3a3a3a);
+}
+
+// Raid variant: the only place this button may use red, because disconnecting
+// interrupts traffic.
+.arkbtn--raid {
+  box-shadow: inset 0 0 0 1px var(--ark-raid, #ff8a7a);
+}
+
+.arkbtn--raid .arkbtn__text {
+  color: var(--ark-raid, #ff8a7a);
+  font-size: 11px;
+  letter-spacing: 2px;
+}
+
+// White disc. flex:0 0 auto is required: without it the flex row squeezes the
+// badge and the 9px glyph collapses to about 5px.
+.arkbtn__badge {
+  flex: 0 0 auto;
+  width: 15px;
+  height: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #fff;
+}
+
+.arkbtn__badge svg {
+  flex: 0 0 auto;
+  display: block;
+}
+
+// Nothing connected: dim the action so it does not invite a no-op click.
+// Disconnected state of the toggle: still a live control — it is the way back
+// — so it must not read as disabled. Dimming to 0.45 with a default cursor made
+// it look inert while it was still clickable, which is a lie the user pays for.
+// Muted neutral border plus normal opacity and pointer cursor says "available,
+// not the dangerous direction".
+.arkbtn--raid.is-off {
+  opacity: 1;
+  cursor: pointer;
+  color: var(--ark-text-2, #9a9a9a);
+  border-color: var(--ark-border, rgba(255, 255, 255, 0.14));
+}
+
+// ---------- Steampunk toggle (RS-00 core switch) ----------
+// Ported verbatim from the user's skeuomorphic button
+// (tmp/steampunk-orig/style.css), scoped under .steampunk-btn so upstream
+// rules cannot leak in. The user fixed this look on 2026-11-12 after three
+// rejected iterations: zero visual changes beyond the lit state, no
+// animation, no text.
+//
+// The theme's `* { box-shadow: none !important }` erases every shadow here,
+// so each box-shadow carries !important. transform is untouched by that rule,
+// so the original :active translateY works as-is.
+//
+// Sizing: the original is a 110px demo block; the left rail slot is the
+// 38px power button's position, so the geometry below reproduces the
+// original proportions at 44px via the same gradients, radii ratios and
+// layer stack (frame padding 6→2.5px, glass radius 14→5.5px, glow 70→28px,
+// glow blur 6→2.5px, star 3.1rem→18px, shadows scaled 110→44).
+.steampunk-btn {
+  --bronze-dark: #2b2927;
+  --bronze-mid: #63431f;
+  --bronze-light: #856233;
+  --bronze-highlight: #fce3a1;
+  --glass-green-deep: #281d08;
+  --glass-green-bright: #544212;
+  --amber-light: #ffc95e;
+  --amber-glow: #fa9a6a;
+
+  position: relative;
+  flex: 0 0 auto;
+  width: 44px;
+  height: 44px;
+  margin-top: 2px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  outline: none;
+  border-radius: 9px;
+
+  box-shadow:
+    0 6px 10px rgba(0, 0, 0, 0.8),
+    0 2px 4px rgba(0, 0, 0, 0.5),
+    inset 0 1px 1px rgba(255, 255, 255, 0.2) !important;
+}
+
+.steampunk-btn .btn-frame {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  border-radius: 9px;
+  padding: 2.5px;
+  box-sizing: border-box;
+  background: linear-gradient(
+    135deg,
+    var(--bronze-highlight) 0%,
+    var(--bronze-light) 20%,
+    var(--bronze-mid) 45%,
+    var(--bronze-dark) 70%,
+    var(--bronze-light) 100%
+  );
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.6),
+    inset 0 -1.5px 2.5px rgba(0, 0, 0, 0.8),
+    inset 1px 1px 2px var(--bronze-highlight),
+    inset -1px -1px 2px #000 !important;
+}
+
+.steampunk-btn .btn-glass {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 5.5px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(
+    circle at 50% 50%,
+    var(--glass-green-bright) 0%,
+    var(--glass-green-deep) 85%
+  );
+  box-shadow:
+    inset 0 0 3.5px rgba(0, 0, 0, 0.9),
+    inset 0 0 6.5px rgba(0, 0, 0, 0.7),
+    0 0 1px rgba(0, 0, 0, 0.5) !important;
+}
+
+.steampunk-btn .glass-pattern {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  opacity: 0.25;
+  background-image: radial-gradient(
+      var(--bronze-light) 0.5px,
+      transparent 0.5px
+    ),
+    linear-gradient(45deg, transparent 49%, rgb(0, 0, 0) 50%, transparent 51%);
+  background-size:
+    8px 8px,
+    6px 6px;
+  mix-blend-mode: overlay;
+  pointer-events: none;
+}
+
+.steampunk-btn .amber-glow {
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    var(--amber-light) 0%,
+    var(--amber-glow) 40%,
+    transparent 75%
+  );
+  opacity: 0.6;
+  filter: blur(2.5px);
+  mix-blend-mode: color-dodge;
+}
+
+.steampunk-btn .glass-reflection {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 5.5px;
+  pointer-events: none;
+}
+
+.steampunk-btn .glass-reflection::before {
+  content: '';
+  position: absolute;
+  top: 1.5px;
+  left: 3px;
+  right: 3px;
+  height: 40%;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.4) 0%,
+    rgba(255, 255, 255, 0.05) 80%,
+    transparent 100%
+  );
+  border-radius: 4px 4px 80% 80% / 3px 3px 15px 15px;
+}
+
+.steampunk-btn .btn-text {
+  position: relative;
+  z-index: 2;
+  font-family: 'Georgia', 'Times New Roman', serif;
+  font-size: 17px;
+  font-weight: 500;
+  line-height: 1;
+  color: var(--bronze-highlight);
+  background: linear-gradient(
+    180deg,
+    #ffffff 0%,
+    var(--bronze-highlight) 50%,
+    var(--bronze-mid) 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.9),
+    0 0 4px var(--amber-light);
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.8));
+  user-select: none;
+}
+
+// Hover / active mirror the original file (translateY values scaled 110→40:
+// -2px→-1px, +1px→+0.5px) so the press feel survives the resize.
+.steampunk-btn:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    0 8px 12px rgba(0, 0, 0, 0.85),
+    0 0 6px rgba(255, 170, 0, 0.3) !important;
+}
+
+.steampunk-btn:hover .amber-glow {
+  opacity: 0.95;
+  transform: scale(1.15);
+  filter: blur(1.8px);
+}
+
+.steampunk-btn:hover .btn-text {
+  text-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.9),
+    0 0 6px var(--amber-light);
+}
+
+.steampunk-btn:active {
+  transform: translateY(0.5px);
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.9),
+    inset 0 1px 2px rgba(0, 0, 0, 0.8),
+    0 0 14px rgba(252, 153, 15, 0.473),
+    0 0 32px rgba(252, 153, 15, 0.29),
+    0 0 62px rgba(255, 198, 85, 0.564) !important;
+}
+
+.steampunk-btn:active .amber-glow {
+  opacity: 0.9;
+  transform: scale(1.3);
+  filter: blur(6px);
+  background: radial-gradient(
+    circle,
+    #ffffff 0%,
+    var(--amber-light) 30%,
+    var(--amber-glow) 60%,
+    transparent 80%
+  );
+}
+
+.steampunk-btn:active .btn-glass {
+  background: radial-gradient(
+    circle at 50% 50%,
+    var(--glass-green-bright) 0%,
+    #4a3b10 60%,
+    var(--glass-green-deep) 100%
+  );
+  box-shadow:
+    inset 0 0 4px rgba(0, 0, 0, 1),
+    inset 0 0 8px rgba(250, 154, 106, 0.2),
+    0 0 1.5px rgba(0, 0, 0, 0.7) !important;
+}
+
+// Lit state: the original :active look held down permanently. Same values as
+// the :active block above; hover does not lift a pressed switch.
+.steampunk-btn.is-on {
+  transform: translateY(0.5px);
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.9),
+    inset 0 1px 2px rgba(0, 0, 0, 0.8),
+    0 0 14px rgba(252, 153, 15, 0.473),
+    0 0 32px rgba(252, 153, 15, 0.29),
+    0 0 62px rgba(255, 198, 85, 0.564) !important;
+}
+
+.steampunk-btn.is-on:hover {
+  transform: translateY(0.5px);
+}
+
+.steampunk-btn.is-on .amber-glow {
+  opacity: 0.9;
+  transform: scale(1.3);
+  filter: blur(6px);
+  background: radial-gradient(
+    circle,
+    #ffffff 0%,
+    var(--amber-light) 30%,
+    var(--amber-glow) 60%,
+    transparent 80%
+  );
+}
+
+.steampunk-btn.is-on .btn-glass {
+  background: radial-gradient(
+    circle at 50% 50%,
+    var(--glass-green-bright) 0%,
+    #4a3b10 60%,
+    var(--glass-green-deep) 100%
+  );
+  box-shadow:
+    inset 0 0 4px rgba(0, 0, 0, 1),
+    inset 0 0 8px rgba(250, 154, 106, 0.2),
+    0 0 1.5px rgba(0, 0, 0, 0.7) !important;
+}
+
+.steampunk-btn.is-on .btn-text {
+  text-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.9),
+    0 0 6px var(--amber-light);
+}
+
+// ---------- 窄窗口 ----------
+// Below 600px the three-column grid cannot hold 88 + 344 of fixed width.
+// The right matrix moves under the main view as a horizontal strip.
+@media (max-width: 600px) {
+  .ark-body {
+    grid-template-columns: 56px minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr) 132px;
+  }
+
+  .ark-rightcol {
+    grid-column: 1 / -1;
+    flex-direction: row;
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+
+  .ark-btn {
+    flex: 0 0 auto !important;
+    width: 132px;
+  }
+
+  .arkbtn {
+    flex: 0 0 auto !important;
+    width: 96px;
+  }
+
+  .ark-rail {
+    padding: 6px 0;
+  }
+
+  .ark-rail__uptime {
+    font-size: 15px;
+  }
+}

@@ -51,6 +51,7 @@ import {
   selectRuleChainMembers,
 } from '@/types/proxy-view'
 import { debugLog } from '@/utils/debug'
+import { latencyColorOf } from '@/utils/latency-tone'
 
 import { rebindProxyChainItems, type ProxyChainItem } from './proxy-chain-model'
 
@@ -229,14 +230,12 @@ const ChainCard = ({
             proxy.delay > 0 ? `${proxy.delay}ms` : t('shared.labels.timeout')
           }
           size="small"
-          color={
-            proxy.delay > 0 && proxy.delay < 200
-              ? 'success'
-              : proxy.delay > 0 && proxy.delay < 800
-                ? 'warning'
-                : 'error'
-          }
-          sx={{ mr: 1, fontSize: '0.7rem', minWidth: 50 }}
+          sx={{
+            mr: 1,
+            fontSize: '0.7rem',
+            minWidth: 50,
+            color: latencyColorOf(proxy.delay),
+          }}
         />
       )}
 

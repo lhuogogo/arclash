@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { BaseLoading } from '@/components/base'
 import { useProxyDelayState } from '@/hooks/use-proxy-delay-state'
 import delayManager from '@/services/delay'
+import { latencyColorOf } from '@/utils/latency-tone'
 import {
   memberDetails,
   type ProxyGroupView,
@@ -52,7 +53,7 @@ export const ProxyItemMini = (props: Props) => {
           alignItems: 'center',
         },
         ({ palette: { mode, primary } }) => {
-          const bgcolor = mode === 'light' ? '#ffffff' : '#24252f'
+          const bgcolor = mode === 'light' ? '#ffffff' : '#333434'
           const showDelay = delayValue > 0
           const selectColor = mode === 'light' ? primary.main : primary.light
 
@@ -189,7 +190,7 @@ export const ProxyItemMini = (props: Props) => {
               void onDelay()
             }}
             sx={({ palette }) => ({
-              color: delayManager.formatDelayColor(delayValue, timeout),
+              color: latencyColorOf(delayValue, timeout),
               ':hover': { bgcolor: alpha(palette.primary.main, 0.15) },
             })}
           >

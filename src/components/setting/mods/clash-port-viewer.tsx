@@ -153,7 +153,7 @@ export const ClashPortViewer = forwardRef<ClashPortViewerRef>((_, ref) => {
   const { verge } = useVerge()
   const { clashInfo } = useClashInfo()
   const configuredMixedPort =
-    verge?.verge_mixed_port ?? clashInfo?.mixed_port ?? 7897
+    verge?.verge_mixed_port ?? clashInfo?.mixed_port ?? 7887
   const displayedMixedPort = useDisplayedMixedPort()
   const [open, setOpen] = useState(false)
   const [ports, setPorts] = useState(() =>

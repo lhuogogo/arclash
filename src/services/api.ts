@@ -139,12 +139,19 @@ const IP_CHECK_SERVICES: ServiceConfig[] = [
 ]
 
 // 获取当前IP和地理位置信息
-export const getIpInfo = async (): Promise<
-  IpInfo & { lastFetchTs: number }
-> => {
+//
+// `proxyPort` forces the request through the core's mixed port. Callers use it
+// to ask a different question than "where does this machine exit": through the
+// proxy the answer is the selected node's exit address, which is what the home
+// block shows while a tunnel is up. Without it the request follows the system
+// proxy stack, which is the machine's own answer when disconnected.
+export const getIpInfo = async (options?: {
+  proxyPort?: number
+}): Promise<IpInfo & { lastFetchTs: number }> => {
   // 配置参数
   const maxRetries = 2
   const serviceTimeout = 5000
+  const proxyPort = options?.proxyPort
 
   const shuffledServices = IP_CHECK_SERVICES.slice().sort(
     () => Math.random() - 0.5,
@@ -170,6 +177,11 @@ export const getIpInfo = async (): Promise<
             method: 'GET',
             signal: timeoutController.signal, // AbortSignal.timeout(service.timeout || serviceTimeout),
             connectTimeout: service.timeout || serviceTimeout,
+            // Through the core: the answer is the node's exit, not this
+            // machine's.
+            ...(proxyPort
+              ? { proxy: { all: `http://127.0.0.1:${proxyPort}` } }
+              : {}),
             headers: {
               'User-Agent': userAgent,
             },

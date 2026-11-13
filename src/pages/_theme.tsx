@@ -18,15 +18,18 @@ export const defaultTheme = {
 }
 
 // dark mode
+// ArClash skin: neutral dark grey base with a single cyan accent.
+// Orange is reserved for status only, never decoration.
+// Measured values, see docs/视觉风格定调.md §3.
 export const defaultDarkTheme = {
   ...defaultTheme,
-  primary_color: '#0A84FF',
-  secondary_color: '#FF9F0A',
+  primary_color: '#19B4E2',
+  secondary_color: '#9A9A9A',
   primary_text: '#FFFFFF',
-  background_color: '#2E303D',
-  secondary_text: '#EBEBF599',
-  info_color: '#0A84FF',
-  error_color: '#FF453A',
-  warning_color: '#FF9F0A',
-  success_color: '#30D158',
+  background_color: '#2D2E2E',
+  secondary_text: '#9A9A9A',
+  info_color: '#19B4E2',
+  error_color: '#FF6018',
+  warning_color: '#FF6018',
+  success_color: '#19B4E2',
 }

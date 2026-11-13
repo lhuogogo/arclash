@@ -425,7 +425,6 @@ export interface TranslationResources {
       page: {
         actions: {
           import: string
-          reactivate: string
           updateAll: string
           viewRuntimeConfig: string
         }
@@ -1589,6 +1588,7 @@ export interface TranslationResources {
           noDisney: string
           originalsOnly: string
           pending: string
+          risky: string
           unsupportedRegion: string
           yes: string
         }

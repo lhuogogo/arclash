@@ -59,6 +59,7 @@ import {
 } from '@/types/proxy-view'
 import { debugLog } from '@/utils/debug'
 import { compareByDelay, DEFAULT_DELAY_TIMEOUT } from '@/utils/delay'
+import { latencyColorOf } from '@/utils/latency-tone'
 
 const STORAGE_KEY_GROUP = 'clash-verge-selected-proxy-group'
 const STORAGE_KEY_SORT_TYPE = 'clash-verge-proxy-sort-type'
@@ -110,28 +111,6 @@ interface ProxyOption {
 }
 
 type OpenSelect = 'group' | 'proxy' | null
-
-function convertDelayColor(
-  delayValue: number,
-): 'success' | 'warning' | 'error' | 'primary' | 'default' {
-  const colorStr = delayManager.formatDelayColor(delayValue)
-  if (!colorStr) return 'default'
-
-  const mainColor = colorStr.split('.')[0]
-
-  switch (mainColor) {
-    case 'success':
-      return 'success'
-    case 'warning':
-      return 'warning'
-    case 'error':
-      return 'error'
-    case 'primary':
-      return 'primary'
-    default:
-      return 'default'
-  }
-}
 
 function getSignalIcon(
   delay: number,
@@ -453,7 +432,7 @@ const PersistentProxySelect = ({
           <Chip
             size="small"
             label={delayManager.formatDelay(selectedDelay)}
-            color={convertDelayColor(selectedDelay)}
+            sx={{ color: latencyColorOf(selectedDelay) }}
           />
           {fixedProxyInUsed && (
             <span
@@ -517,11 +496,11 @@ const PersistentProxySelect = ({
                 <Chip
                   size="small"
                   label={delayManager.formatDelay(delay)}
-                  color={convertDelayColor(delay)}
                   sx={{
                     minWidth: '60px',
                     height: '22px',
                     flexShrink: 0,
+                    color: latencyColorOf(delay),
                   }}
                 />
               )}
@@ -1081,7 +1060,7 @@ export const CurrentProxyCard = () => {
               <Chip
                 size="small"
                 label={delayManager.formatDelay(currentDelay)}
-                color={convertDelayColor(currentDelay)}
+                sx={{ color: latencyColorOf(currentDelay) }}
               />
             )}
           </Box>

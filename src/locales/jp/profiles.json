@@ -3,7 +3,6 @@
     "actions": {
       "updateAll": "すべてのプロファイルを更新",
       "viewRuntimeConfig": "実行時のプロファイルを表示",
-      "reactivate": "プロファイルを再アクティブ化",
       "import": "インポート"
     },
     "batch": {

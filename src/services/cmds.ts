@@ -283,6 +283,16 @@ export async function restartCore() {
   return commands.restartCore()
 }
 
+/** Stops the managed core outright; backs the status page "disconnect" control. */
+export async function stopCore() {
+  return commands.stopCore()
+}
+
+/** Starts the managed core again after stopCore. */
+export async function startCore() {
+  return commands.startCore()
+}
+
 export async function upgradeClashCore(force = false) {
   return commands.upgradeClashCore(force)
 }

@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link
+      rel="shortcut icon"
+      href="./assets/image/logo.ico"
+      type="image/x-icon"
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ArClash Preview</title>
+    <style>
+      :root {
+        color-scheme: dark;
+      }
+
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        background: #2d2e2e;
+      }
+
+      #root {
+        width: 100%;
+        height: 100%;
+      }
+
+      /* Preview-only banner. The shell never renders this file, so it cannot
+         leak into the app; without it a screenshot of the preview is easy to
+         mistake for the real application. */
+      #preview-badge {
+        position: fixed;
+        right: 8px;
+        bottom: 8px;
+        z-index: 10000;
+        padding: 3px 7px;
+        font: 10px/1.4 Consolas, monospace;
+        letter-spacing: 0.6px;
+        color: #0a1518;
+        background: #19b4e2;
+        pointer-events: none;
+      }
+
+      /* Shown only if mounting throws. The real overlay is removed by the app
+         once React is up; this one stays and says why. */
+      #preview-error {
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 10001;
+        padding: 24px;
+        font: 12px/1.7 Consolas, monospace;
+        color: #ff8a7a;
+        background: #1a1b1b;
+        white-space: pre-wrap;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="initial-loading-overlay"></div>
+    <div id="root"></div>
+    <div id="preview-badge">PREVIEW</div>
+    <div id="preview-error"></div>
+    <script type="module" src="./preview/entry.tsx"></script>
+  </body>
+</html>

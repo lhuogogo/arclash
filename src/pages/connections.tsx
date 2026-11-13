@@ -172,6 +172,7 @@ const ConnectionsPage = () => {
   return (
     <BasePage
       full
+      subtitle="CONNECTIONS"
       title={
         <span style={{ whiteSpace: 'nowrap' }}>
           {t('connections.page.title')}

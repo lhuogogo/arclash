@@ -21,7 +21,7 @@ try {
     [
       'run',
       '-p',
-      'clash-verge',
+      'arclash',
       '--example',
       'frontend-contract',
       '--locked',

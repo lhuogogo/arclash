@@ -1,0 +1,278 @@
+// ============================================================
+// ArClash 青红风 UI 主题 —— 第一版皮肤层
+// ------------------------------------------------------------
+// 原则（见 docs/视觉风格定调.md，那是权威，这里只实现不复述）：
+//   1. 矩形硬边：圆角一律压到 0–2px
+//   2. 无阴影、无毛玻璃、无发光
+//   3. 1px 实线边框
+//   4. 纯色，不用渐变
+//
+// 实现方式：不做逐文件改造（101 处分散在组件里），
+// 而是用全局覆盖层从外层压制。好处是改动集中、可整体回滚，
+// 上游升级时冲突面小。
+// ============================================================
+
+// ---------- 色板（实测值，见 docs/视觉风格定调.md §3） ----------
+// !important is required on the overrides: index.scss declares a :root block
+// AFTER its @use lines (SCSS forbids moving @use down), so that block lands
+// later in the cascade and would otherwise reset --border-radius to 8px.
+// Verified in the built CSS before this fix: the radius stayed 8px everywhere.
+:root {
+  --ark-bg: #2d2e2e; // 主背景
+  --ark-panel: #373737; // 面板
+  --ark-panel-alt: #333434; // 面板次级
+  --ark-accent: #19b4e2; // 强调青（唯一强调色；面板底 5.62 / 控件底 4.91，AA 达标）
+  --ark-warn: #ff6018; // 警示橙（只做状态色）
+  --ark-text-2: #9a9a9a; // 次文字
+  --ark-border: rgba(255, 255, 255, 0.1); // 边框
+  --ark-divider: rgba(255, 255, 255, 0.08); // 分割线
+
+  // 覆盖上游变量，让既有样式自动跟随
+  --border-radius: 0px !important;
+  --divider-color: var(--ark-divider) !important;
+  --background-color: var(--ark-bg) !important;
+  --scroller-color: #4a4a4a !important;
+}
+
+// ---------- 1. 全局矩形硬边 ----------
+// 上游大量组件在 sx 里硬写 borderRadius，只能靠 !important 压。
+//
+// 不用 `*`：那会连 <html>/<body>/canvas/滚动条一起压，副作用面太大，
+// 而且 MUI 的 ripple 动画会变成方块。这里只压「块级容器 + 按钮类」，
+// 覆盖实际需要变矩形的范围。
+.MuiPaper-root,
+.MuiCard-root,
+.MuiButtonBase-root,
+.MuiButton-root,
+.MuiOutlinedInput-root,
+.MuiInputBase-root,
+.MuiChip-root,
+.MuiAlert-root,
+.MuiAccordion-root,
+.MuiAccordionSummary-root,
+.MuiListItemButton-root,
+.MuiTab-root,
+.MuiToggleButton-root,
+.MuiSelect-select,
+.MuiMenu-paper,
+.MuiPopover-paper,
+.MuiDialog-paper,
+.MuiTooltip-tooltip,
+.MuiLinearProgress-root,
+.MuiLinearProgress-bar,
+.MuiTableCell-root {
+  border-radius: 0 !important;
+}
+
+// 输入类给 2px（定调允许 ≤2px，输入框纯直角手感过硬）
+input,
+textarea,
+select {
+  border-radius: 2px !important;
+}
+
+// ---------- 1b. 必须保持圆形的例外 ----------
+// 依据：docs/UI设计稿.md:139「唯一例外：开关（Switch）thumb 保持圆形，
+// 那是物理隐喻不能改」，以及 :392 的呼应。
+//
+// 开关的圆点是「物理隐喻」——它是可以滑动的小球，压成方块会读作
+// 「滑块卡死」，是功能暗示的错误，不是审美取舍。
+.MuiSwitch-thumb {
+  border-radius: 50% !important;
+}
+
+// 单选/复选的内点同理
+.MuiRadio-root .MuiSvgIcon-root,
+.MuiCheckbox-root .MuiSvgIcon-root {
+  border-radius: 50% !important;
+}
+
+// ---------- 2. 禁阴影 / 禁毛玻璃 ----------
+// MUI 的 shadows 已在 use-custom-theme.ts 设为 none，
+// 但组件里仍有硬写的 box-shadow 和 backdrop-filter。
+.MuiPaper-root,
+.MuiCard-root,
+.MuiDialog-paper,
+.MuiMenu-paper,
+.MuiPopover-paper,
+.MuiDrawer-paper,
+.MuiAccordion-root {
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  background-image: none !important;
+}
+
+// ---------- 3. 边框 ----------
+// 只给「我们自己的面板」加 1px 实线，不全局写给 MUI 基类。
+//
+// 原因：MUI 的 Dialog/Menu/Popover 自带分隔线，再叠 1px 会出现
+// 边框套边框（视觉 2px）；而且选中态常靠 border-color 变化表达，
+// 全局 !important 会把那些状态盖掉。
+// 需要 ArClash 描边的面板，用 data-ark-panel 显式标记。
+[data-ark-panel] {
+  border: 1px solid var(--ark-border) !important;
+}
+
+// ---------- 4. 滚动条 ----------
+*::-webkit-scrollbar-thumb {
+  border-radius: 0 !important;
+  background-color: var(--scroller-color);
+}
+
+// ---------- 5. 状态色语义 ----------
+// 橙只做状态，不做装饰
+[data-ark-status='warn'],
+.ark-warn {
+  color: var(--ark-warn) !important;
+}
+
+[data-ark-status='ok'],
+.ark-ok {
+  color: var(--ark-accent) !important;
+}
+
+// ---------- 6. 页面头部（紧凑版，来自 v6 .pg-head） ----------
+// page.scss 把 header 写死成 58px + 20px 标题，那是旧布局的尺寸。
+// 这里压成紧凑头：内容撑高而不是固定高度，主视区能多显示几行。
+.base-page > header.base-page__head {
+  flex: 0 0 auto !important;
+  height: auto !important;
+  min-height: 0;
+  padding: 10px 14px 10px !important;
+  gap: 8px;
+  border-bottom: 1px solid var(--ark-divider) !important;
+}
+
+.base-page > header .base-page__title {
+  font-size: 15px !important;
+  font-weight: 800 !important;
+  letter-spacing: 3px !important;
+  line-height: 1.2;
+  color: var(--ark-text, #fff);
+}
+
+// 英文副标题：9px / 700 / 字距 1.4px / 大写 / 三级文字色
+.base-page > header .base-page__subtitle {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+  color: var(--ark-text-3, #a8a8a8);
+  margin-left: 2px;
+  white-space: nowrap;
+}
+
+// 头部右侧工具按钮：24x22，1px 内描边，hover 转青
+.base-page > header .pg-tools {
+  margin-left: auto;
+  display: flex;
+  gap: 4px;
+}
+
+.base-page > header .pg-tools button,
+.base-page > header .pg-tools .MuiIconButton-root {
+  width: 24px !important;
+  height: 22px !important;
+  min-width: 24px;
+  padding: 0 !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0 !important;
+  color: var(--ark-text-2, #b4b4b4);
+  box-shadow: inset 0 0 0 1px var(--ark-border);
+  background: transparent;
+}
+
+.base-page > header .pg-tools button:hover,
+.base-page > header .pg-tools .MuiIconButton-root:hover {
+  color: var(--ark-accent);
+  box-shadow: inset 0 0 0 1px var(--ark-accent);
+  background: transparent;
+}
+
+.base-page > header .pg-tools svg {
+  font-size: 12px;
+  width: 12px;
+  height: 12px;
+}
+
+// ---------- 6. 右键菜单（配置页 14 项） ----------
+// 结构层不动：profile-item.tsx 的 urlModeMenu/fileModeMenu 14 项、
+// handler 与 disabled 逻辑保持原样（docs/第二版设计令牌.md §6）。
+// 这里只做视觉：深色纸面、1px 描边、矩形、hover 用次级面板色、
+// 删除项突袭红（--raid 的三个合法用途之一）。
+//
+// The latency tiers live here too: they are a value scale, not a status, so
+// they get their own four colours and never reuse the accent or the raid red.
+// Contrast against the panel (#2d2e2e) is checked in the design token doc.
+:root {
+  --ark-raid: #ff8a7a;
+  --ark-gold: #e8b84b;
+  --ark-purple: #ce9cff;
+  --ark-blue: #62b4f0;
+  --ark-green: #5cb85c;
+}
+
+.MuiMenu-paper {
+  background-color: var(--ark-panel) !important;
+  border: 1px solid var(--ark-border) !important;
+  padding: 4px 0 !important;
+}
+
+.MuiMenu-paper .MuiMenuItem-root,
+.MuiPopover-paper .MuiMenuItem-root {
+  // 逐项压掉 MUI 默认圆角与自身底色，菜单条目保持纯矩形
+  border-radius: 0 !important;
+  background-color: transparent !important;
+  font-size: 12px;
+  padding: 6px 14px;
+}
+
+.MuiMenu-paper .MuiMenuItem-root:hover:not(.Mui-disabled),
+.MuiPopover-paper .MuiMenuItem-root:hover:not(.Mui-disabled) {
+  background-color: var(--ark-panel-alt) !important;
+  // 选中左侧 2px 青色指示条，ArClash 选中语义
+  box-shadow: inset 2px 0 0 var(--ark-accent);
+}
+
+.MuiMenu-paper .MuiMenuItem-root.Mui-disabled,
+.MuiPopover-paper .MuiMenuItem-root.Mui-disabled {
+  color: var(--ark-text-2) !important;
+  opacity: 0.45 !important;
+}
+
+// 删除项：原版用 theme.palette.error.main，压成突袭红并保持 hover 可读
+.MuiMenu-paper .MuiMenuItem-root.ark-menu-danger,
+.MuiPopover-paper .MuiMenuItem-root.ark-menu-danger {
+  color: var(--ark-raid) !important;
+}
+
+.MuiMenu-paper .MuiMenuItem-root.ark-menu-danger:hover:not(.Mui-disabled) {
+  background-color: rgba(255, 138, 122, 0.08) !important;
+}
+
+// 分隔线：菜单内若有 divider，用低对比分割线色
+.MuiMenu-paper .MuiDivider-root,
+.MuiPopover-paper .MuiDivider-root {
+  border-color: var(--ark-divider) !important;
+}
+
+// ---------- 7. 页头工具按钮 ----------
+// 页头结构（base-page.tsx）是 bb橘 名下的，那里用 .pg-tools 容器。
+// 这里补工具按钮的ArClash 样式：24×22、12px 细线 SVG、hover 转青。
+.pg-tools button {
+  min-width: 24px;
+  height: 22px;
+  padding: 0 4px;
+  border-radius: 0 !important;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--ark-text-2) !important;
+  cursor: pointer;
+}
+
+.pg-tools button:hover {
+  color: var(--ark-accent) !important;
+  border-color: var(--ark-border);
+}

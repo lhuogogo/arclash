@@ -3,7 +3,6 @@
     "actions": {
       "updateAll": "Update All Profiles",
       "viewRuntimeConfig": "View Runtime Config",
-      "reactivate": "Reactivate Profiles",
       "import": "Import"
     },
     "batch": {

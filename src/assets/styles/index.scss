@@ -1,6 +1,15 @@
 @use "./layout.scss";
 @use "./page.scss";
 @use "./font.scss";
+// Arknights skin layer: must load last so it overrides upstream styles.
+@use "./arclash-theme.scss";
+// Three-column shell for the second version. Loaded after the skin layer
+// because it defines the structural grid, not just colours.
+@use "./ark-layout.scss";
+// Status page body for the three-column shell.
+@use "./ark-status.scss";
+// Download / usage page body for the three-column shell.
+@use "./ark-usage.scss";
 
 body {
   margin: 0;
@@ -12,6 +21,10 @@ body {
   -ms-user-select: none;
 }
 
+// NOTE: this block is emitted AFTER the @use layers, so it overrides their
+// :root declarations. That is why the Arknights radius reset has to be
+// re-asserted with !important in arclash-theme.scss rather than relying on order.
+// SCSS forbids moving @use below these rules, so order cannot be fixed here.
 :root {
   --primary-main: #5b5c9d;
   --text-primary: #1f1f1f;

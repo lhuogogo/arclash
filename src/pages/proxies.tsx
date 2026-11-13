@@ -1,4 +1,4 @@
-import { LanOutlined, LanRounded, WarningRounded } from '@mui/icons-material'
+import { WarningRounded } from '@mui/icons-material'
 import { Box, Button, ButtonGroup, Typography } from '@mui/material'
 import { useLockFn } from 'ahooks'
 import { useCallback, useEffect, useReducer, useState } from 'react'
@@ -16,6 +16,7 @@ import {
   patchClashMode,
   updateProxyChainConfigInRuntime,
 } from '@/services/cmds'
+import { useSyncGlobalSelection } from '@/hooks/use-sync-global-selection'
 import { mutate } from '@/services/mutate'
 import { showNotice } from '@/services/notice-service'
 import { debugLog } from '@/utils/debug'
@@ -26,7 +27,12 @@ const MODE_SET = new Set<string>(MODES)
 const isMode = (value: unknown): value is Mode =>
   typeof value === 'string' && MODE_SET.has(value)
 
-const ProxyPage = () => {
+interface ProxyPageProps {
+  /** Shell page switch, so the empty state's 「前往订阅」 actually navigates. */
+  onNavigate?: (page: 'profiles') => void
+}
+
+const ProxyPage = ({ onNavigate }: ProxyPageProps = {}) => {
   const { t } = useTranslation()
 
   // 从 localStorage 恢复链式代理按钮状态
@@ -56,6 +62,8 @@ const ProxyPage = () => {
   const curMode = isMode(normalizedMode) ? normalizedMode : undefined
   const chainWarning = t('proxies.page.chain.warning')
 
+  const syncGlobalSelection = useSyncGlobalSelection()
+
   const onChangeMode = useLockFn(async (mode: Mode) => {
     try {
       // patchClashMode 在后端 PATCH 失败时会 reject，需提示用户而非静默失败
@@ -63,6 +71,9 @@ const ProxyPage = () => {
         id: 'patch-clash-mode',
         errorNotice: false,
       })
+      // Same carry-over as the home card: switching to global keeps routing
+      // through the node picked in rule mode (user decision, option B).
+      await syncGlobalSelection(mode)
       await refreshClashConfig()
     } catch (error) {
       showNotice.error(error)
@@ -147,6 +158,7 @@ const ProxyPage = () => {
     <BasePage
       full
       contentStyle={{ height: '100%' }}
+      subtitle="PROXIES"
       title={
         isChainMode ? (
           <Box
@@ -182,22 +194,6 @@ const ProxyPage = () => {
               </Button>
             ))}
           </ButtonGroup>
-
-          <Button
-            size="small"
-            variant={isChainMode ? 'contained' : 'outlined'}
-            onClick={onToggleChainMode}
-            sx={{ ml: 1 }}
-            startIcon={
-              isChainMode ? (
-                <LanRounded fontSize="small" />
-              ) : (
-                <LanOutlined fontSize="small" />
-              )
-            }
-          >
-            {t('proxies.page.actions.toggleChain')}
-          </Button>
         </Box>
       }
     >
@@ -206,6 +202,7 @@ const ProxyPage = () => {
         isChainMode={isChainMode}
         chainConfigData={chainConfigData}
         onExitChainMode={onExitChainMode}
+        onNavigate={onNavigate}
       />
       <BaseDialog
         open={chainConfirmOpen}

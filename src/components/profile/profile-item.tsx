@@ -639,7 +639,7 @@ const ProfileItemBase = (props: ProfileItemProps) => {
   })
 
   return (
-    <Box ref={setElement} sx={{ position: 'relative', borderRadius: '8px' }}>
+    <Box ref={setElement} data-ark-panel sx={{ position: 'relative', borderRadius: '8px' }}>
       <ProfileBox
         aria-selected={selected}
         onClick={(e) => {
@@ -860,17 +860,10 @@ const ProfileItemBase = (props: ProfileItemProps) => {
             key={item.label}
             onClick={item.handler}
             disabled={item.disabled}
+            className={item.label === menuLabels.delete ? 'ark-menu-danger' : undefined}
             sx={[
               {
                 minWidth: 120,
-              },
-              (theme) => {
-                return {
-                  color:
-                    item.label === menuLabels.delete
-                      ? theme.palette.error.main
-                      : undefined,
-                }
               },
             ]}
             dense

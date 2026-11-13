@@ -1,0 +1,471 @@
+// ============================================================
+// Status page (v6 `[data-page="status"]`)
+// ------------------------------------------------------------
+// Connection headline, three data bars, session facts, then the TUN switch
+// and the three-way mode switch on separate rows.
+// ============================================================
+
+.ark-status {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  gap: 0;
+}
+
+.ark-status__eyebrow {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+  color: var(--ark-text-3, #a8a8a8);
+}
+
+.ark-status__title {
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  margin-top: 8px;
+  color: var(--ark-text, #fff);
+}
+
+// Stopped state reads muted, not red: a stopped core is a normal resting state,
+// not an error. Red is reserved for the disconnect action itself.
+.ark-status__title.is-off {
+  color: var(--ark-text-2, #9a9a9a);
+}
+
+// Egress address above the node line (v9 `status-ip`,
+// prototype/v9.html:797). Only rendered while the core runs, because the probe
+// follows the system proxy stack and would otherwise report the machine's own
+// address. Monospace so the dotted groups stay aligned.
+// Address and location, above the node line. 15px against the node's 12px: the
+// address is the block's answer to "where am I going out from", so it outranks
+// the node name instead of sitting under it. Colour matches the node name — the
+// muted grey it had made the two lines look like different tiers of fact when
+// they are one fact split in two.
+.ark-status__ip {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+  margin-top: 6px;
+  font-size: 15px;
+  letter-spacing: 0.2px;
+  color: var(--ark-text, #fff);
+  white-space: nowrap;
+}
+
+.ark-status__ip-addr {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  // No address to show yet (probe failed or nothing probed): invisible filler
+  // text holds the row's height so the button below never moves (zero-offset
+  // rule, user report 11-13).
+  &.is-filler {
+    visibility: hidden;
+  }
+}
+
+// Location is a qualifier on the address: same colour family, less emphasis.
+// White, matching the address and the node name: one statement split into
+// parts, so none of them is secondary.
+.ark-status__ip-geo {
+  flex: 0 0 auto;
+  font-size: 12px;
+  color: var(--ark-text, #fff);
+}
+
+// Node line under the headline (v9 `status-node`, prototype/v9.html:797-802).
+// The selected node and its latency sit directly under "已 连 接" so the page
+// states what is actually being routed through, not just that something is.
+// Same latency classes as the proxies block, so the colour means one thing.
+.ark-status__node {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+  margin-top: 6px;
+}
+
+.ark-status__node-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+  color: var(--ark-text, #fff);
+
+  // No node selected: an explicit prompt at the row's own height, muted so it
+  // reads as guidance rather than a selection.
+  &.is-placeholder {
+    color: var(--ark-text-3, #a8a8a8);
+  }
+}
+
+.ark-status__node-ms {
+  flex: 0 0 auto;
+  font-size: 11px;
+}
+
+// Direct mode: the node stays listed but is not carrying traffic. Muting it and
+// tagging it is the honest presentation — a hidden row read as a lost
+// selection, while a normal-looking row would claim the node is in use.
+.ark-status__node.is-unused .ark-status__node-name,
+.ark-status__node.is-unused .ark-status__node-ms {
+  opacity: 0.5;
+}
+
+.ark-status__node-tag {
+  flex: 0 0 auto;
+  padding: 0 4px;
+  font-size: 9px;
+  line-height: 1.6;
+  color: var(--ark-text-3, #a8a8a8);
+  box-shadow: inset 0 0 0 1px var(--ark-border, rgba(255, 255, 255, 0.14));
+}
+
+// ---------- Three data bars ----------
+.ark-strip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  margin-top: 18px;
+}
+
+.ark-strip__cell {
+  min-width: 0;
+  padding: 6px 8px;
+  // Darker well than the page surface, with a drawn 1px frame: the three
+  // figures are read at a glance, and on the panel grey they had no edge at all
+  // (v9 figure 1 uses a near-black inset with a light hairline).
+  //
+  // `!important` because the theme injects `* { box-shadow: none !important }`
+  // to enforce the no-shadow rule. That rule also kills this inset hairline,
+  // which is a border drawn as a shadow, not decoration — every other framed
+  // surface in the app re-asserts it the same way.
+  background: var(--ark-well, #1e1f1f);
+  box-shadow: inset 0 0 0 1px var(--ark-border, rgba(255, 255, 255, 0.14)) !important;
+}
+
+.ark-strip__label {
+  font-size: 9.5px;
+  color: var(--ark-text-2, #b4b4b4);
+}
+
+.ark-strip__num {
+  font-size: 16px;
+  font-weight: 700;
+  margin-top: 2px;
+  color: var(--ark-text, #fff);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ark-strip__bar {
+  height: 2px;
+  margin-top: 5px;
+  background: var(--ark-panel-3, #3a3a3a);
+  overflow: hidden;
+}
+
+.ark-strip__bar > i {
+  display: block;
+  height: 100%;
+  background: var(--ark-accent);
+}
+
+// ---------- Session facts ----------
+.ark-info {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 18px;
+  margin-top: 14px;
+}
+
+.ark-info__row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 3px 0;
+  border-bottom: 1px solid var(--ark-divider);
+  min-width: 0;
+}
+
+.ark-info__k {
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: var(--ark-text-3, #a8a8a8);
+  white-space: nowrap;
+}
+
+.ark-info__v {
+  font-size: 11px;
+  color: var(--ark-text, #fff);
+  font-variant-numeric: tabular-nums;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// ---------- Core block ----------
+// Stretches to absorb the slack between itself and the action row. Measured in
+// the running app: the core block ended at y=284 and the TUN row started at
+// y=335, leaving a 51px dead band in the middle of the page. Letting the block
+// grow and spreading its three rows with space-evenly closes the hole without
+// piling the space into one gap — the section gaps then read
+// 8 / 18 / 14 / 20 / 20 top to bottom instead of 8 / 18 / 14 / 12 / 51.
+// Core block. Fixed height on purpose: it was `flex: 1 1 auto`, so every extra
+// pixel of window height landed here and the rows spread apart. A measured
+// block keeps the label/value rhythm constant however tall the window is, and
+// `flex: 0 0 auto` stops the column from stretching it.
+.ark-core {
+  margin-top: 20px;
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  // Bottom padding restored to 8px: it was 0 because the decorative bar closed
+  // the block, and that bar has been removed.
+  padding: 8px 10px;
+  background: var(--ark-well, #1e1f1f);
+  // Same reason as `.ark-strip__cell`: the theme's global
+  // `* { box-shadow: none !important }` would otherwise erase this hairline.
+  box-shadow: inset 0 0 0 1px var(--ark-border) !important;
+}
+
+.ark-core__head {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.ark-core__title {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--ark-text, #fff);
+}
+
+.ark-core__badge {
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: var(--ark-accent);
+}
+
+// Two columns of label/value pairs; each pair is a single line so long values
+// ellipsis rather than wrap.
+//
+// Fixed row height, not `align-content: space-evenly`: the even distribution was
+// what let the rows drift apart as the block grew. A fixed 18px row with no
+// stretch keeps the rhythm identical at every window height.
+.ark-core__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 14px;
+  flex: 0 0 auto;
+  align-content: start;
+}
+
+.ark-core__cell {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 6px;
+  min-width: 0;
+  height: 18px;
+  padding: 0;
+}
+
+.ark-core__k {
+  font-size: 10.5px;
+  color: var(--ark-text-3, #a8a8a8);
+  white-space: nowrap;
+}
+
+.ark-core__v {
+  font-size: 11px;
+  color: var(--ark-text, #fff);
+  font-variant-numeric: tabular-nums;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ark-core__v.on {
+  color: var(--ark-green, #5cb85c);
+}
+
+// ---------- TUN + mode switch ----------
+// Two rows on purpose. Side by side, TUN consumes ~150px of the content width
+// and each mode button falls to ~96px, which wraps "规则".
+.ark-actions {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 6px;
+  padding-top: 10px;
+}
+
+.ark-actions__tun,
+.ark-actions__modes {
+  min-width: 0;
+}
+
+// ---------- TUN: one 30px row (v9 .tun-btn) ----------
+.tun-btn {
+  width: 100%;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 10px;
+  background: var(--ark-panel-2, #373737);
+  box-shadow: inset 0 0 0 1px var(--ark-border);
+  clip-path: polygon(7px 0, 100% 0, 100% 100%, 0 100%);
+  cursor: pointer;
+  transition:
+    background 0.12s,
+    box-shadow 0.12s;
+  border: 0;
+  font: inherit;
+  color: inherit;
+}
+
+.tun-btn:hover {
+  background: var(--ark-panel-3, #3a3a3a);
+}
+
+.tun-ico {
+  display: flex;
+  align-items: center;
+  color: var(--ark-text-2, #b4b4b4);
+  flex: 0 0 auto;
+}
+
+.tun-txt {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--ark-text-2, #b4b4b4);
+}
+
+.tun-state {
+  margin-left: auto;
+  font-size: 10px;
+  font-family: 'Cascadia Mono', Consolas, monospace;
+  color: var(--ark-text-3, #a8a8a8);
+  letter-spacing: 1px;
+}
+
+// TUN is unified on the raid colour: gold is the latency scale, so reusing it
+// here would break the token semantics. Only three meanings project-wide:
+// cyan = interactive, red = needs attention, gold = latency.
+.tun-btn.is-on {
+  background: rgba(255, 138, 122, 0.1);
+  box-shadow: inset 0 0 0 1px var(--ark-raid, #ff8a7a);
+}
+
+.tun-btn.is-on .tun-ico,
+.tun-btn.is-on .tun-txt,
+.tun-btn.is-on .tun-state {
+  color: var(--ark-raid, #ff8a7a);
+}
+
+// ---------- Mode switch: 2/5 width, 13px, 30px tall (v9 .mode) ----------
+.ark-actions__modes {
+  width: 40%;
+}
+
+// The three mode buttons are MUI Paper with inline sx, not <button>; a
+// `button` selector matches nothing here (this was a real bug once).
+.ark-actions__modes .MuiPaper-root {
+  min-height: 30px !important;
+  height: 30px !important;
+  border-radius: 0 !important;
+  clip-path: polygon(7px 0, 100% 0, 100% 100%, 0 100%);
+  background: var(--ark-panel-2, #373737) !important;
+  box-shadow: inset 0 0 0 1px var(--ark-border) !important;
+  padding: 0 4px !important;
+}
+
+.ark-actions__modes .MuiPaper-root .MuiTypography-root {
+  font-size: 13px !important;
+  font-weight: 700;
+  letter-spacing: 1px;
+  white-space: nowrap;
+}
+
+// Selected mode: cyan fill + cyan stroke, per v9 `.mode.on`.
+//
+// Keyed on aria-pressed, not on .MuiPaper-elevation2. The elevation class is a
+// MUI implementation detail that changes across majors; aria-pressed is a
+// stable contract and also what screen readers consume.
+.ark-actions__modes .MuiPaper-root[aria-pressed='true'] {
+  background: var(--ark-accent-dim, rgba(25, 180, 226, 0.16)) !important;
+  box-shadow: inset 0 0 0 1px var(--ark-accent) !important;
+}
+
+.ark-actions__modes .MuiPaper-root[aria-pressed='true'] .MuiTypography-root {
+  color: var(--ark-accent) !important;
+}
+
+// Flatten the hover lift and the old connector line.
+.ark-actions__modes .MuiPaper-root:hover {
+  transform: none !important;
+}
+
+.ark-actions__modes .MuiPaper-root::after {
+  display: none !important;
+}
+
+// ---------- Mode hint (view transition) ----------
+// The hint is portalled to body by Popper, so these classes live at the root
+// scope rather than under .ark-actions.
+//
+// `::view-transition-*` rules only run when the browser starts a transition,
+// which React does only if document.startViewTransition exists. Unsupported
+// browsers skip the animation entirely and just render the element — no white
+// flash, no stuck state. See the reduced-motion block below.
+::view-transition-old(.hint-pop-out) {
+  animation: hint-fade-out 120ms ease-out both;
+}
+
+::view-transition-new(.hint-pop) {
+  animation: hint-rise-in 160ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes hint-rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes hint-fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+// Respect the OS-level preference. The transition classes are removed here so
+// the hint swaps instantly instead of animating.
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(.hint-pop-out),
+  ::view-transition-new(.hint-pop) {
+    animation: none !important;
+  }
+}

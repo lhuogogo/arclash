@@ -1,0 +1,244 @@
+// ============================================================
+// Download / usage page (v9 `[data-page="download"]`)
+// ------------------------------------------------------------
+// Range tabs, four summary cards, a dimension switch, then the breakdown list
+// beside the traffic chart. Same surface language as the status page: 1px
+// inset borders, no radius, no shadow, no gradient.
+// ============================================================
+
+.ark-usage {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+.ark-usage__head {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.ark-usage__title {
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  color: var(--ark-text, #fff);
+}
+
+.ark-usage__sub {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1.4px;
+  color: var(--ark-text-3, #a8a8a8);
+}
+
+// ---------- range tabs ----------
+.ark-usage__tabs {
+  display: flex;
+  margin-top: 10px;
+  background: var(--ark-panel-2, #3d3d3d);
+  padding: 2px;
+}
+
+.ark-usage__tab {
+  flex: 1;
+  padding: 5px 0;
+  font-size: 10px;
+  color: var(--ark-text-2, #9a9a9a);
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  font: inherit;
+}
+
+.ark-usage__tab.is-on {
+  background: var(--ark-accent, #19b4e2);
+  color: #0a1518;
+  font-weight: 700;
+}
+
+// No history is persisted for these, so they are inert rather than hidden:
+// hiding them would imply the app only ever offers one range.
+.ark-usage__tab.is-unavailable {
+  opacity: 0.4;
+  cursor: default;
+}
+
+// ---------- summary cards ----------
+.ark-usage__cards {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 5px;
+  margin-top: 8px;
+}
+
+.ark-usage__card {
+  padding: 7px 8px;
+  background: var(--ark-panel-2, #3d3d3d);
+  box-shadow: inset 0 0 0 1px var(--ark-border, rgba(255, 255, 255, 0.14));
+}
+
+.ark-usage__k {
+  font-size: 9px;
+  color: var(--ark-text-3, #a8a8a8);
+}
+
+.ark-usage__v {
+  font-size: 12px;
+  font-weight: 700;
+  margin-top: 3px;
+  color: var(--ark-text, #fff);
+}
+
+// ---------- dimension tabs ----------
+.ark-usage__dims {
+  display: flex;
+  margin-top: 10px;
+  border-bottom: 1px solid var(--ark-divider, rgba(255, 255, 255, 0.1));
+}
+
+.ark-usage__dim {
+  padding: 5px 12px;
+  font-size: 10px;
+  color: var(--ark-text-3, #a8a8a8);
+  background: transparent;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  font: inherit;
+}
+
+.ark-usage__dim.is-on {
+  color: var(--ark-text, #fff);
+  border-bottom-color: var(--ark-accent, #19b4e2);
+}
+
+.ark-usage__dim.is-unavailable {
+  opacity: 0.4;
+  cursor: default;
+}
+
+// ---------- list beside chart ----------
+// The list and the chart share one height: four rows of equal flex define it,
+// and the chart stretches to match instead of filling the whole column.
+.ark-usage__body {
+  display: grid;
+  grid-template-columns: 150px minmax(0, 1fr);
+  gap: 8px;
+  margin-top: 10px;
+  align-items: stretch;
+  max-height: 190px;
+  min-height: 0;
+}
+
+.ark-usage__list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-height: 0;
+}
+
+.ark-usage__row {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 8px;
+  background: var(--ark-panel-2, #3d3d3d);
+  font-size: 9.5px;
+  box-shadow: inset 0 0 0 1px var(--ark-border, rgba(255, 255, 255, 0.14));
+  flex: 1 1 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.ark-usage__row-k {
+  color: var(--ark-text-2, #9a9a9a);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ark-usage__row-v {
+  flex: 0 0 auto;
+  color: var(--ark-text-2, #9a9a9a);
+}
+
+// Proportion bar sits under the row text, not behind it.
+.ark-usage__row-bar {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 1px;
+  background: var(--ark-accent, #19b4e2);
+}
+
+.ark-usage__chart {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding: 8px;
+  background: var(--ark-panel-2, #3d3d3d);
+  box-shadow: inset 0 0 0 1px var(--ark-border, rgba(255, 255, 255, 0.14));
+}
+
+.ark-usage__chart svg {
+  display: block;
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+}
+
+.ark-usage__grid {
+  stroke: rgba(255, 255, 255, 0.07);
+  stroke-width: 1;
+}
+
+.ark-usage__line {
+  fill: none;
+  stroke-width: 1.5;
+  vector-effect: non-scaling-stroke;
+}
+
+.ark-usage__line--down {
+  stroke: var(--ark-accent, #19b4e2);
+}
+
+.ark-usage__line--up {
+  stroke: var(--ark-text-3, #a8a8a8);
+}
+
+.ark-usage__empty {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  color: var(--ark-text-3, #a8a8a8);
+}
+
+.ark-usage__legend {
+  display: flex;
+  gap: 10px;
+  font-size: 9px;
+  color: var(--ark-text-3, #a8a8a8);
+  margin-top: 4px;
+}
+
+.ark-usage__dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  margin-right: 3px;
+}
+
+.ark-usage__dot--down {
+  background: var(--ark-accent, #19b4e2);
+}
+
+.ark-usage__dot--up {
+  background: var(--ark-text-3, #a8a8a8);
+}

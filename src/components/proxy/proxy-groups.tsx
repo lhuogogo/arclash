@@ -70,15 +70,18 @@ interface Props {
   isChainMode?: boolean
   chainConfigData?: string | null
   onExitChainMode: () => void
+  /** Shell page switch, so the empty state's 「前往订阅」 actually navigates. */
+  onNavigate?: (page: 'profiles') => void
 }
 
-function useEmptyRenderList() {
+function useEmptyRenderList(onNavigate?: (page: 'profiles') => void) {
   const { isProxyViewError } = useProxiesData()
   const { runningMode } = useSystemData()
 
   return (
     <ProxyEmptyState
       reason={resolveEmptyListReason({ runningMode, isProxyViewError })}
+      onNavigate={onNavigate}
     />
   )
 }
@@ -369,8 +372,11 @@ function ChainProxyGroups(props: {
   )
 }
 
-function NormalProxyGroups(props: { mode: string }) {
-  const { mode } = props
+function NormalProxyGroups(props: {
+  mode: string
+  onNavigate?: (page: 'profiles') => void
+}) {
+  const { mode, onNavigate } = props
   const stickyListRef = useRef<StickyVirtualListHandle>(null)
   const {
     verge,
@@ -381,7 +387,7 @@ function NormalProxyGroups(props: { mode: string }) {
     getScrollPosition,
     saveScrollPosition,
   } = useProxyRenderState(mode, false, null)
-  const emptyList = useEmptyRenderList()
+  const emptyList = useEmptyRenderList(onNavigate)
   const { onDragEnd: onHeaderDragEnd } = useProxyGroupHeaderLayout()
   const renderFirstRef = useRef(true)
   // Do not persist intermediate positions produced while restoring virtual scroll.
@@ -621,7 +627,13 @@ function NormalProxyGroups(props: { mode: string }) {
 }
 
 export const ProxyGroups = (props: Props) => {
-  const { mode, isChainMode = false, chainConfigData, onExitChainMode } = props
+  const {
+    mode,
+    isChainMode = false,
+    chainConfigData,
+    onExitChainMode,
+    onNavigate,
+  } = props
   const { profiles, isLoading: isProfilesLoading } = useProfiles()
   const { isProxyViewPending } = useProxiesData()
   const { isRunningModePending } = useSystemData()
@@ -640,7 +652,9 @@ export const ProxyGroups = (props: Props) => {
     case 'loading':
       return <BaseLoading />
     case 'empty':
-      return <ProxyEmptyState reason={listState.reason} />
+      return (
+        <ProxyEmptyState reason={listState.reason} onNavigate={onNavigate} />
+      )
     case 'render':
       return isChainMode ? (
         <ChainProxyGroups
@@ -649,7 +663,7 @@ export const ProxyGroups = (props: Props) => {
           onExitChainMode={onExitChainMode}
         />
       ) : (
-        <NormalProxyGroups mode={mode} />
+        <NormalProxyGroups mode={mode} onNavigate={onNavigate} />
       )
   }
 }

@@ -3,7 +3,6 @@
     "actions": {
       "updateAll": "Perbarui Semua Profil",
       "viewRuntimeConfig": "Lihat Konfigurasi Runtime",
-      "reactivate": "Reaktivasi Profil",
       "import": "Impor"
     },
     "batch": {
