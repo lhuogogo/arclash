@@ -1,153 +1,63 @@
 <h1 align="center">
-  <img src="./src-tauri/icons/icon.png" alt="Clash" width="128" />
+  <img src="./src-tauri/icons/icon.png" alt="ArClash" width="128" />
   <br>
-  Continuation of <a href="https://github.com/zzzgydi/clash-verge">Clash Verge</a>
+  ArClash
   <br>
 </h1>
 
 <h3 align="center">
-A Clash Meta GUI based on <a href="https://github.com/tauri-apps/tauri">Tauri</a>.
+  明日方舟风格的 Mihomo 桌面客户端 · 基于 Tauri 2 + React
 </h3>
 
 <p align="center">
-  Languages:
-  <a href="./docs/README_en.md">English</a> ·
-  <a href="./docs/README_es.md">Español</a> ·
-  <a href="./docs/README_fa.md">فارسی</a> ·
-  <a href="./docs/README_ja.md">日本語</a> ·
-  <a href="./docs/README_ko.md">한국어</a> ·
-  <a href="./docs/README_pt.md">Português</a> ·
-  <a href="./docs/README_ru.md">Русский</a> ·
-  <a href="./README.md">简体中文</a>
+  Forked from <a href="https://github.com/clash-verge-rev/clash-verge-rev">clash-verge-rev</a> v2.5.10 · License: GPL-3.0
 </p>
 
-## About this fork
-
-**ArClash** is an Arknights-styled fork of [clash-verge-rev](https://github.com/clash-verge-rev/clash-verge-rev) (based on v2.5.10). It ships a custom home dashboard, proxy pages and theme, its own service identity (`arclash-service`), and assorted fixes. Licensed under GPL-3.0; upstream copyright and license notices are preserved.
-
-## Preview
-
-| Dark                             | Light                             |
-| -------------------------------- | --------------------------------- |
-| ![预览](./docs/preview_dark.png) | ![预览](./docs/preview_light.png) |
-
-## Install
-
-请到发布页面下载对应的安装包：[Release page](https://github.com/clash-verge-rev/clash-verge-rev/releases)<br>
-Go to the [Release page](https://github.com/clash-verge-rev/clash-verge-rev/releases) to download the corresponding installation package<br>
-Supports Windows (x64/x86), Linux (x64/arm64) and macOS 11+ (intel/apple).
-支持 Windows (x64/x86)、Linux (x64/arm64) 和 macOS 11+ (intel/apple)。
-
-#### 我应当怎样选择发行版
-
-| 版本        | 特征                                     | 链接                                                                                   |
-| :---------- | :--------------------------------------- | :------------------------------------------------------------------------------------- |
-| Stable      | 正式版，高可靠性，适合日常使用。         | [Release](https://github.com/clash-verge-rev/clash-verge-rev/releases)                 |
-| Alpha(废弃) | 测试发布流程。                           | [Alpha](https://github.com/clash-verge-rev/clash-verge-rev/releases/tag/alpha)         |
-| AutoBuild   | 滚动更新版，适合测试反馈，可能存在缺陷。 | [AutoBuild](https://github.com/clash-verge-rev/clash-verge-rev/releases/tag/autobuild) |
-
-#### 安装说明和常见问题，请到 [文档页](https://clash-verge-rev.github.io/) 查看
-
-### TG 频道: [@clash_verge_rev](https://t.me/clash_verge_re)
-
 ---
 
-## Promotion
+## 这是什么
 
-### ✈️ [AI云边 -- 全新架构机场 ClaudeBorder](https://cruise.54678999.xyz/#/register?code=58q5UJZc)
+ArClash 是 [clash-verge-rev](https://github.com/clash-verge-rev/clash-verge-rev) 的二次开发版：保留其 Mihomo 内核管理与系统能力，界面按明日方舟 UI 风格重做，并带一套自己的服务身份。
 
-🔥热销中使用本链接注册即送 **3 天免费试用**，每日 **1GB 流量**：👉 [点此注册](https://cruise.54678999.xyz/#/register?code=58q5UJZc)
+> This is a personal fork of clash-verge-rev v2.5.10 with an Arknights-styled UI. The upstream base is imported as a single parentless snapshot commit (`Release: v2.5.10`); upstream history lives [here](https://github.com/clash-verge-rev/clash-verge-rev).
 
-#### AI云边 -- 全新架构机场。
+## 相对上游的主要改动
 
-- 💻 多次**技术迭代后**全新亮相。
-- 🗺 全**高速稳定**正价节点。
-- 🌏 **海外团队**，不跑路
-- 🚀 线路**冗余**设计，**自动化运维**对抗各类封锁
-- 👨‍🦲 团队架构师为**大厂**网络架构师
-- 💰 极致**稳定**，亲民价**价格**
-- 🌐 全面支持**流媒体及各AI访问**
-- 🙋 7*12小时真人客服。解决您的各类问题。
+- **界面重做**：首页状态块（RS-00～RS-05 卡片布局）、下载速度页、方舟风格主题与配色 token、蒸汽朋克开关
+- **RS-00 显示逻辑**：节点名位置显示当前模式英文（`Rule / Global / Direct / Disconnect`），IP 行连接时经内核代理口探测**节点出口 IP**（不走订阅 server 域名），断开/直连显示本地出口
+- **全局模式联动**：切到全局时自动把规则模式选中的节点写入 GLOBAL 组，节点行不再冒出 `DIRECT`
+- **系统代理归属判定**：`enable_system_proxy=false` 时只清理本应用自己设置的 OS 代理（按 host:port / PAC URL 匹配），不碰其他软件（如 FlClash）设置的代理
+- **独立服务身份**：自带 `arclash-service`（vendored `clash_verge_service_ipc`），与 Verge 的服务彻底分离
+- **预览工具**：`web:preview` 提供 mock 全界面态（连接/断开/规则/全局/直连/未选节点/空订阅），UI 改动不用编译即可验证
 
-🌐 官网：👉 [https://www.claudeborder.com](https://cruise.54678999.xyz/#/register?code=58q5UJZc)
+## 构建
 
-### 🤖 [GPTKefu —— 与 Crisp 深度整合的 AI 智能客服平台](https://gptkefu.com)
+```bash
+pnpm install
 
-- 🧠 深度理解完整对话上下文 + 图片识别，自动给出专业、精准的回复，告别机械式客服。
-- ♾️ **不限回答数量**，无额度焦虑，区别于其他按条计费的 AI 客服产品。
-- 💬 售前咨询、售后服务、复杂问题解答，全场景轻松覆盖，真实用户案例已验证效果。
-- ⚡ 3 分钟极速接入，零门槛上手，即刻提升客服效率与客户满意度。
-- 🎁 高级套餐免费试用 14 天，先体验后付费：👉 [立即试用](https://gptkefu.com)
-- 📢 智能客服TG 频道：[@crisp_ai](https://t.me/crisp_ai)
+# 前端类型检查 + 生产构建（产物在 dist/）
+pnpm web:build
 
----
-
-## Features
-
-- 基于性能强劲的 Rust 和 Tauri 2 框架
-- 内置[Clash.Meta(mihomo)](https://github.com/MetaCubeX/mihomo)内核，并支持切换 `Alpha` 版本内核。
-- 简洁美观的用户界面，支持自定义主题颜色、代理组/托盘图标以及 `CSS Injection`。
-- 配置文件管理和增强（Merge 和 Script），配置文件语法提示。
-- 系统代理和守卫、`TUN(虚拟网卡)` 模式。
-- 可视化节点和规则编辑
-- WebDav 配置备份和同步
-
-### FAQ
-
-Refer to [Doc FAQ Page](https://clash-verge-rev.github.io/faq/windows.html)
-
-### Donation
-
-[捐助Clash Verge Rev的开发](https://github.com/sponsors/clash-verge-rev)
-
-## Development
-
-See [CONTRIBUTING.md](./CONTRIBUTING.md) for more details.
-
-To run the development server, execute the following commands after all prerequisites for **Tauri** are installed:
-
-```shell
-pnpm i
-pnpm run prebuild
-pnpm dev
+# 桌面应用（release 产物在 target/release/）
+cd src-tauri && cargo build --release
 ```
 
-`pnpm dev` preserves the Development Channel's installed service state: an
-existing service is used, while a previously uninstalled service remains
-uninstalled and the app starts in Sidecar mode. Use `pnpm dev:service` to
-explicitly install or update the isolated development service before launch,
-or `pnpm dev:sidecar` to force the unprivileged Sidecar workflow.
+预览（不编译内核）：
 
-## Contributions
+```bash
+pnpm web:preview   # http://127.0.0.1:8802/，?state=direct|unselected|disconnected|empty|empty-global 切换界面态
+```
 
-Issue and PR welcome!
+## 目录说明
 
-## Acknowledgement
+| 路径 | 内容 |
+| --- | --- |
+| `src/` | React 前端（`components/home`、`assets/styles/arclash-theme.scss` 等） |
+| `src-tauri/` | Tauri 2 后端（`core/sysopt.rs` 系统代理归属、`core/` 内核管理） |
+| `src-tauri/vendor/` | vendored 第三方（`clash-verge-service-ipc`，GPL-3.0） |
 
-Clash Verge rev was based on or inspired by these projects and so on:
+## 许可
 
-- [zzzgydi/clash-verge](https://github.com/zzzgydi/clash-verge): A Clash GUI based on tauri. Supports Windows, macOS and Linux.
-- [tauri-apps/tauri](https://github.com/tauri-apps/tauri): Build smaller, faster, and more secure desktop applications with a web frontend.
-- [Dreamacro/clash](https://github.com/Dreamacro/clash): A rule-based tunnel in Go.
-- [MetaCubeX/mihomo](https://github.com/MetaCubeX/mihomo): A rule-based tunnel in Go.
-- [Fndroid/clash_for_windows_pkg](https://github.com/Fndroid/clash_for_windows_pkg): A Windows/macOS GUI based on Clash.
-- [vitejs/vite](https://github.com/vitejs/vite): Next generation frontend tooling. It's fast!
+本项目沿用 **GPL-3.0-only**。基于 clash-verge-rev（及其依赖的 Mihomo 生态）的代码，其原始版权与许可声明均予保留，详见 [LICENSE](./LICENSE) 与 [THIRD-PARTY-NOTICES.md](./THIRD-PARTY-NOTICES.md)。
 
-## Privacy
-
-Clash Verge Rev 不收集任何用户数据，配置与日志仅保存在本地。详见[隐私政策](./PRIVACY.md)。
-
-Clash Verge Rev does not collect any user data; configuration and logs stay on
-your own device. See the [Privacy Policy](./PRIVACY.md) for details.
-
-## About This Fork / 关于本分支
-
-本项目是 [clash-verge-rev](https://github.com/clash-verge-rev/clash-verge-rev) 的修改版，界面做了大量重做（ArClash：状态页、右侧按钮列、左栏趣味按钮等），并非官方版本，与上游无隶属关系，也不代表上游。
-
-This is a modified fork of [clash-verge-rev](https://github.com/clash-verge-rev/clash-verge-rev) with extensive UI changes (ArClash: status page, right-hand button matrix, the left rail's fun button, and more). It is an unofficial build, unaffiliated with and not endorsed by the upstream project.
-
-使用的第三方素材及其许可见 [THIRD-PARTY-NOTICES.md](./THIRD-PARTY-NOTICES.md)。Third-party assets and their licenses are listed in [THIRD-PARTY-NOTICES.md](./THIRD-PARTY-NOTICES.md).
-
-## License
-
-GPL-3.0 License. See [License here](./LICENSE) for details.
+隐私相关说明见 [PRIVACY.md](./PRIVACY.md)。
