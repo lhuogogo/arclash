@@ -15,6 +15,10 @@
 
 ---
 
+## 预览
+
+![ArClash 主界面](./docs/preview.png)
+
 ## 这是什么
 
 ArClash 是 [clash-verge-rev](https://github.com/clash-verge-rev/clash-verge-rev) 的二次开发版：保留其 Mihomo 内核管理与系统能力，界面按明日方舟 UI 风格重做，并带一套自己的服务身份。
