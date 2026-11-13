@@ -21,6 +21,10 @@ A Clash Meta GUI based on <a href="https://github.com/tauri-apps/tauri">Tauri</a
   <a href="./README.md">简体中文</a>
 </p>
 
+## About this fork
+
+**ArClash** is an Arknights-styled fork of [clash-verge-rev](https://github.com/clash-verge-rev/clash-verge-rev) (based on v2.5.10). It ships a custom home dashboard, proxy pages and theme, its own service identity (`arclash-service`), and assorted fixes. Licensed under GPL-3.0; upstream copyright and license notices are preserved.
+
 ## Preview
 
 | Dark                             | Light                             |
@@ -135,6 +139,14 @@ Clash Verge Rev 不收集任何用户数据，配置与日志仅保存在本地�
 
 Clash Verge Rev does not collect any user data; configuration and logs stay on
 your own device. See the [Privacy Policy](./PRIVACY.md) for details.
+
+## About This Fork / 关于本分支
+
+本项目是 [clash-verge-rev](https://github.com/clash-verge-rev/clash-verge-rev) 的修改版，界面做了大量重做（ArClash：状态页、右侧按钮列、左栏趣味按钮等），并非官方版本，与上游无隶属关系，也不代表上游。
+
+This is a modified fork of [clash-verge-rev](https://github.com/clash-verge-rev/clash-verge-rev) with extensive UI changes (ArClash: status page, right-hand button matrix, the left rail's fun button, and more). It is an unofficial build, unaffiliated with and not endorsed by the upstream project.
+
+使用的第三方素材及其许可见 [THIRD-PARTY-NOTICES.md](./THIRD-PARTY-NOTICES.md)。Third-party assets and their licenses are listed in [THIRD-PARTY-NOTICES.md](./THIRD-PARTY-NOTICES.md).
 
 ## License
 

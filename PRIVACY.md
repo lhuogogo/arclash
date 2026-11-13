@@ -41,9 +41,9 @@ All application data lives in a single directory:
 
 | Platform | Location |
 | --- | --- |
-| Windows | `%APPDATA%\io.github.clash-verge-rev.clash-verge-rev` |
-| macOS | `~/Library/Application Support/io.github.clash-verge-rev.clash-verge-rev` |
-| Linux | `$XDG_DATA_HOME/io.github.clash-verge-rev.clash-verge-rev` (usually `~/.local/share/…`) |
+| Windows | `%APPDATA%\io.github.arclash.arclash` |
+| macOS | `~/Library/Application Support/io.github.arclash.arclash` |
+| Linux | `$XDG_DATA_HOME/io.github.arclash.arclash` (usually `~/.local/share/…`) |
 
 It contains:
 
