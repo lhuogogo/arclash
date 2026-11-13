@@ -79,6 +79,12 @@ pub struct IVerge {
 
     pub enable_tun_mode: Option<bool>,
 
+    /// Remembered tunnel preference for the connect switch (A semantics):
+    /// which channel(s) the user had on before the last disconnect. Written on
+    /// disconnect, read on connect; startup itself never applies it.
+    #[specta(type = Option<std::string::String>)]
+    pub tunnel_mode: Option<String>,
+
     pub enable_auto_launch: Option<bool>,
 
     pub enable_silent_start: Option<bool>,
@@ -300,7 +306,7 @@ impl IVerge {
 
         if needs_fix {
             logging!(debug, Type::Config, "正在保存修正后的配置文件...");
-            help::save_yaml(&config_path, &config, Some("# Clash Verge Config")).await?;
+            help::save_yaml(&config_path, &config, Some("# ArClash Config")).await?;
             logging!(info, Type::Config, "配置文件修正完成，需要重新加载配置");
 
             Self::reload_config_after_fix(config).await;
@@ -382,6 +388,7 @@ impl IVerge {
             enable_hover_jump_navigator: Some(true),
             hover_jump_navigator_delay: Some(280),
             enable_system_proxy: Some(false),
+            tunnel_mode: None,
             proxy_auto_config: Some(false),
             pac_file_content: Some(DEFAULT_PAC.into()),
             proxy_host: Some("127.0.0.1".into()),
@@ -427,7 +434,7 @@ impl IVerge {
     }
 
     pub async fn save_file(&self) -> Result<()> {
-        help::save_yaml(&dirs::verge_path()?, &self, Some("# Clash Verge Config")).await
+        help::save_yaml(&dirs::verge_path()?, &self, Some("# ArClash Config")).await
     }
 
     #[allow(clippy::cognitive_complexity)]
@@ -466,6 +473,7 @@ impl IVerge {
         patch!(tun_tray_icon);
 
         patch!(enable_tun_mode);
+        patch!(tunnel_mode);
         patch!(enable_auto_launch);
         patch!(enable_silent_start);
         patch!(enable_hover_jump_navigator);

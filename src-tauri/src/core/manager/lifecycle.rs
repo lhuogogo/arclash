@@ -549,6 +549,18 @@ impl CoreManager {
 
     #[tracing::instrument(skip_all, level = "info", fields(mode = ?*self.get_running_mode(), readiness_generation = self.current_core_readiness_generation(), owner_generation = crate::core::service::owner_monitor_generation()))]
     pub(crate) async fn apply_proxy_after_start(&self) -> Result<()> {
+        // The startup chain reaches here even while the app is configured off. Writing the
+        // OS proxy unconditionally then erases another program's settings, so with the
+        // master switch off only residue this app can prove is its own is cleaned; a
+        // user-initiated toggle keeps its own write path in `proxy_control`.
+        if !Config::verge()
+            .await
+            .latest_arc()
+            .enable_system_proxy
+            .unwrap_or_default()
+        {
+            return proxy_control::clear_own_residue().await;
+        }
         let expectation = ProxyRestoreExpectation::capture(
             *self.get_running_mode(),
             self.current_core_readiness_generation(),

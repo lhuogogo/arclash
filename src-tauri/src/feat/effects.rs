@@ -70,6 +70,10 @@ verge_registry! {
     sysproxy_tray_icon => [TrayIcon];
     tun_tray_icon => [TrayIcon];
     enable_tun_mode => Tun;
+    // Remembered connect preference: classified here because verge_registry!
+    // destructures every IVerge field, but it drives nothing by itself — the
+    // connect switch reads it and issues the real patches.
+    tunnel_mode => NoEffect;
     enable_auto_launch => [Autostart];
     enable_silent_start => NoEffect;
     enable_system_proxy => [SystemProxy, TrayMenu, TrayTooltip, TrayIcon];

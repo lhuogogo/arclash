@@ -4,6 +4,11 @@ linker = "aarch64-linux-gnu-gcc"
 [target.armv7-unknown-linux-gnueabihf]
 linker = "arm-linux-gnueabihf-gcc"
 
+[build]
+# Keep artifacts off the repo: CARGO_TARGET_DIR via env is unreliable when the
+# parent process was started before the variable was persisted.
+target-dir = "F:/dev/cargo-target"
+
 [alias]
 clippy-all = "clippy --all-targets --all-features -- -D warnings"
 clippy-only = "clippy --all-targets  --features clippy -- -D warnings"

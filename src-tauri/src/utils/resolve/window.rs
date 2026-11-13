@@ -4,20 +4,71 @@ use tauri::webview::PageLoadEvent;
 use tauri::{Theme, WebviewWindow};
 
 use crate::{config::Config, core::handle, utils::resolve::window_script::build_window_initial_script};
-#[cfg(target_os = "macos")]
-use clash_verge_logging::logging;
-use clash_verge_logging::{Type, logging_error};
+use clash_verge_logging::{Type, logging, logging_error};
 
 const DARK_BACKGROUND_COLOR: Color = Color(46, 48, 61, 255); // #2E303D
 const LIGHT_BACKGROUND_COLOR: Color = Color(245, 245, 245, 255); // #F5F5F5
 const DARK_BACKGROUND_HEX: &str = "#2E303D";
 const LIGHT_BACKGROUND_HEX: &str = "#F5F5F5";
 
-const DEFAULT_WIDTH: f64 = 940.0;
-const DEFAULT_HEIGHT: f64 = 700.0;
+/// Fallback size used when no monitor information is available.
+const DEFAULT_WIDTH: f64 = 920.0;
+const DEFAULT_HEIGHT: f64 = 520.0;
 
-const MINIMAL_WIDTH: f64 = 520.0;
+/// The window never grows beyond this share of the monitor work area.
+const WORK_AREA_MAX_RATIO: f64 = 0.86;
+
+// The three-column shell (88 rail + main view + 268 button matrix + gaps)
+// stops fitting below this width: the main view collapses and the matrix
+// clips its labels. Measured on the running build by dragging the window to
+// the smallest usable size, then rounded to the nearest 10.
+const MINIMAL_WIDTH: f64 = 920.0;
 const MINIMAL_HEIGHT: f64 = 520.0;
+
+/// Resolves the startup window size.
+///
+/// The shell is tuned for one size: the three columns are fixed-width, so the
+/// layout only looks right at a narrow band of window sizes. Opening at a share
+/// of the monitor made the window too tall on large displays (the right matrix
+/// stretched and its rows drifted apart). So the window now opens at
+/// [`DEFAULT_WIDTH`]x[`DEFAULT_HEIGHT`] — the size picked by dragging the
+/// running build to its smallest usable size — and is only shrunk when the
+/// monitor work area is too small to hold it.
+fn resolve_startup_size(app: &tauri::AppHandle) -> (f64, f64) {
+    let fallback = (DEFAULT_WIDTH, DEFAULT_HEIGHT);
+
+    let Some(monitor) = app.primary_monitor().ok().flatten() else {
+        logging!(warn, Type::Window, "未获取到主显示器信息，使用默认窗口尺寸 {DEFAULT_WIDTH}x{DEFAULT_HEIGHT}");
+        return fallback;
+    };
+
+    let work_area = monitor.work_area();
+    let scale = monitor.scale_factor();
+    if scale <= 0.0 {
+        return fallback;
+    }
+
+    let area_width = work_area.size.width as f64 / scale;
+    let area_height = work_area.size.height as f64 / scale;
+    if area_width <= 0.0 || area_height <= 0.0 {
+        return fallback;
+    }
+
+    // Never exceed the work area: a 920x520 window on a smaller desktop would
+    // otherwise hang off the screen edge.
+    let width = DEFAULT_WIDTH.min(area_width * WORK_AREA_MAX_RATIO).max(MINIMAL_WIDTH);
+    let height = DEFAULT_HEIGHT
+        .min(area_height * WORK_AREA_MAX_RATIO)
+        .max(MINIMAL_HEIGHT);
+
+    logging!(
+        info,
+        Type::Window,
+        "启动窗口尺寸 {width:.0}x{height:.0}（主显示器工作区 {area_width:.0}x{area_height:.0}）"
+    );
+
+    (width.round(), height.round())
+}
 
 #[cfg(target_os = "linux")]
 const DEFAULT_DECORATIONS: bool = false;
@@ -28,7 +79,7 @@ const fn restored_window_size_is_too_small(width: u32, height: u32) -> bool {
     width < MINIMAL_WIDTH as u32 || height < MINIMAL_HEIGHT as u32
 }
 
-fn restore_default_size_if_needed(window: &WebviewWindow) {
+fn restore_default_size_if_needed(window: &WebviewWindow, startup_size: (f64, f64)) {
     let Ok(size) = window.outer_size() else {
         return;
     };
@@ -39,7 +90,7 @@ fn restore_default_size_if_needed(window: &WebviewWindow) {
 
     logging_error!(
         Type::Window,
-        window.set_size(tauri::LogicalSize::new(DEFAULT_WIDTH, DEFAULT_HEIGHT))
+        window.set_size(tauri::LogicalSize::new(startup_size.0, startup_size.1))
     );
     logging_error!(Type::Window, window.center());
 }
@@ -76,17 +127,23 @@ pub async fn build_new_window() -> Result<WebviewWindow, String> {
 
     let initial_script = build_window_initial_script(initial_theme_mode, DARK_BACKGROUND_HEX, LIGHT_BACKGROUND_HEX);
 
+    let (startup_width, startup_height) = resolve_startup_size(app_handle);
+
     let mut builder = tauri::WebviewWindowBuilder::new(
         app_handle,
         "main", /* the unique window label */
         tauri::WebviewUrl::App(start_page.into()),
     )
-    .title("Clash Verge")
+    .title("ArClash")
     .center()
     .decorations(DEFAULT_DECORATIONS)
     .fullscreen(false)
-    .inner_size(DEFAULT_WIDTH, DEFAULT_HEIGHT)
-    .min_inner_size(MINIMAL_WIDTH, MINIMAL_HEIGHT)
+    .inner_size(startup_width, startup_height)
+    // The minimum has to be applied after the window exists, not in the
+    // builder: a builder-level min_inner_size larger than the platform's
+    // initial 160x28 placeholder keeps the webview from finishing its first
+    // layout, so on_page_load never fires and the window stays hidden. The
+    // restore step below enforces the minimum once the window is real.
     .visible(false) // 等待主题色准备好后再展示，避免启动色差
     .initialization_script(&initial_script)
     .general_autofill_enabled(false) // 禁用自动填充
@@ -108,7 +165,17 @@ pub async fn build_new_window() -> Result<WebviewWindow, String> {
     match builder.build() {
         Ok(window) => {
             logging_error!(Type::Window, window.set_background_color(Some(background_color)));
-            restore_default_size_if_needed(&window);
+            // Enforce the minimum once the window is real. Doing it here rather
+            // than in the builder avoids blocking the first webview layout on a
+            // window that starts at the platform placeholder size.
+            logging_error!(
+                Type::Window,
+                window.set_min_size(Some(tauri::LogicalSize::new(
+                    MINIMAL_WIDTH,
+                    MINIMAL_HEIGHT
+                )))
+            );
+            restore_default_size_if_needed(&window, (startup_width, startup_height));
             // A new page supersedes any reload marker left by the old window.
             #[cfg(target_os = "macos")]
             take_webview_needs_reload();

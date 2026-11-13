@@ -1,11 +1,11 @@
 [package]
-name = "clash-verge"
+name = "arclash"
 version = "2.5.10"
-description = "clash verge"
+description = "arclash"
 authors = ["zzzgydi", "Tunglies", "wonfen", "MystiPanda"]
 license = "GPL-3.0-only"
 repository = "https://github.com/clash-verge-rev/clash-verge-rev.git"
-default-run = "clash-verge"
+default-run = "arclash"
 build = "build.rs"
 edition = "2024"
 rust-version = "1.99"
@@ -26,7 +26,7 @@ clippy = ["tauri/test"]
 perf-harness = ["dep:tauri-plugin-wdio-webdriver"]
 
 [package.metadata.bundle]
-identifier = "io.github.clash-verge-rev.clash-verge-rev"
+identifier = "io.github.arclash.arclash"
 
 [build-dependencies]
 tauri-build = { version = "2.7.3", features = [] }
@@ -98,7 +98,11 @@ tracing = { workspace = true }
 tauri-plugin-devtools = { version = "2.2.2", optional = true }
 tauri-plugin-mihomo = { git = "https://github.com/clash-verge-rev/tauri-plugin-mihomo", rev = "7a03d16f4d39b1bb885b7babe66b9e153e34b615" }
 async-trait = "0.1.92"
-clash_verge_service_ipc = { git = "https://github.com/clash-verge-rev/clash-verge-service-ipc.git", tag = "v2.7.7", version = "2.7.7", features = [
+# Vendored fork (src-tauri/vendor/clash-verge-service-ipc): ArClash has its own
+# service identity (arclash_service) so it can coexist with Clash Verge s
+# clash_verge_service. Same upstream version 2.7.7, GPL-3.0, LICENSE kept in the
+# vendor directory.
+clash_verge_service_ipc = { path = "vendor/clash-verge-service-ipc", version = "2.7.7", features = [
   "client",
 ] }
 arc-swap = "1.9.2"

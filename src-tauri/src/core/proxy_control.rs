@@ -507,6 +507,64 @@ pub async fn apply() -> Result<()> {
     result
 }
 
+/// Clear OS-level proxy residue only when it provably belongs to this app.
+///
+/// The startup chain reaches here even while the app is configured off. Clearing
+/// unconditionally would erase another program's settings (e.g. a different proxy
+/// client the user runs daily), so the OS proxy is read first and cleared only when
+/// it still points at this app's own host:port or its own PAC server — the leftover
+/// of a crash while connected. Foreign or unreadable state is left untouched.
+pub async fn clear_own_residue() -> Result<()> {
+    let verge = Config::verge().await.latest_arc();
+    let proxy_host = verge
+        .proxy_host
+        .as_deref()
+        .unwrap_or("127.0.0.1")
+        .to_owned();
+    let mixed_port = MixedPort::desired().await;
+    let pac_url = format!(
+        "http://{proxy_host}:{}/commands/pac",
+        server::embedded_server_port()?
+    );
+
+    let read_result = tokio::task::spawn_blocking(move || {
+        sysproxy::Sysproxy::get_system_proxy().and_then(|sys| {
+            sysproxy::Autoproxy::get_auto_proxy().map(|auto| (sys, auto))
+        })
+    })
+    .await
+    .map_err(anyhow::Error::from)
+    .and_then(|inner| inner.map_err(anyhow::Error::from));
+    let (sys, auto) = match read_result {
+        Ok(pair) => pair,
+        Err(error) => {
+            logging!(
+                warn,
+                Type::Core,
+                "could not read the OS proxy to check startup residue ({error:#}); leaving it untouched"
+            );
+            return Ok(());
+        }
+    };
+
+    let global_is_ours = sys.enable && sys.host == proxy_host && sys.port == mixed_port;
+    let pac_is_ours = auto.enable && auto.url == pac_url;
+    if !global_is_ours && !pac_is_ours {
+        logging!(
+            info,
+            Type::Core,
+            "the OS proxy does not point at this app; startup leaves it untouched"
+        );
+        return Ok(());
+    }
+    logging!(
+        info,
+        Type::Core,
+        "clearing OS proxy residue left by this app (global match: {global_is_ours}, PAC match: {pac_is_ours})"
+    );
+    clear().await
+}
+
 pub async fn clear() -> Result<()> {
     let result = clear_with_retry().await;
     // Clear failures must be filed even when a restart aborts before apply.

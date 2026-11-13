@@ -11,12 +11,20 @@ members = [
 ]
 resolver = "2"
 
+# Vendored service-IPC fork keeps its own workspace root; without this entry
+# cargo sees two workspace roots and refuses to build.
+exclude = [
+  "src-tauri/vendor/clash-verge-service-ipc",
+]
+
 [profile.release]
 panic = "unwind"
 codegen-units = 1
 lto = "thin"
 opt-level = 3
-debug = 1
+# 明日方舟 UI 改造：原为 debug = 1，MSVC 编译 aws-lc-sys 的 C 代码时
+# 会因 -Z7 调试记录超长报 D8050。改成 0 绕开，不影响功能。
+debug = 0
 strip = "none"
 overflow-checks = false
 split-debuginfo = "unpacked"

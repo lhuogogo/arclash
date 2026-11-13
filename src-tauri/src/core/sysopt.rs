@@ -93,6 +93,90 @@ fn target_is_already_in_place(snapshot: &sysproxy::ProxySnapshot, sys: &Sysproxy
     }
 }
 
+/// Which OS-level proxy kinds currently installed are ones this app wrote.
+///
+/// Only consulted on the "system proxy turned off in settings" path. Clearing
+/// unconditionally there wipes whatever another proxy app installed — a real
+/// case, since the user runs FlClash day to day and ArClash starting would have
+/// cut their network. Never clearing leaves our own entry behind after a crash
+/// mid-connection. Ownership is therefore decided by endpoint: our host and port
+/// are ours, anything else is not ours to touch.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+struct OsProxyOwnership {
+    global: bool,
+    pac: bool,
+}
+
+impl OsProxyOwnership {
+    /// True when neither kind in the OS came from this app.
+    const fn is_none(&self) -> bool {
+        !self.global && !self.pac
+    }
+}
+
+/// Collapse the loopback aliases a config may use for the same local endpoint.
+fn normalize_proxy_host(host: &str) -> std::string::String {
+    let host = host.trim().trim_matches(|c| c == '[' || c == ']').to_ascii_lowercase();
+    match host.as_str() {
+        "localhost" | "::1" | "::" => "127.0.0.1".to_owned(),
+        _ => host,
+    }
+}
+
+fn endpoint_matches(current: &Sysproxy, expected: &Sysproxy) -> bool {
+    current.port == expected.port && normalize_proxy_host(&current.host) == normalize_proxy_host(&expected.host)
+}
+
+fn pac_matches(current_url: &str, expected_url: &str) -> bool {
+    fn normalize(url: &str) -> std::string::String {
+        url.trim().trim_end_matches('/').to_ascii_lowercase()
+    }
+    !expected_url.trim().is_empty() && normalize(current_url) == normalize(expected_url)
+}
+
+fn read_os_proxy_ownership(sys: &Sysproxy, auto: &Autoproxy) -> Result<OsProxyOwnership> {
+    let global = Sysproxy::get_system_proxy()?;
+    let pac = Autoproxy::get_auto_proxy()?;
+    Ok(OsProxyOwnership {
+        global: global.enable && endpoint_matches(&global, sys),
+        pac: pac.enable && pac_matches(&pac.url, &auto.url),
+    })
+}
+
+/// Ownership of the live OS state, or `None` when it cannot be read.
+///
+/// An unreadable state is deliberately not treated as ours: keeping hands off
+/// can leave our own stale entry behind, while guessing wrong cuts a working
+/// proxy another app installed.
+async fn current_os_proxy_ownership(sys: Sysproxy, auto: Autoproxy) -> Option<OsProxyOwnership> {
+    match tokio::task::spawn_blocking(move || read_os_proxy_ownership(&sys, &auto)).await {
+        Ok(Ok(ownership)) => Some(ownership),
+        Ok(Err(error)) => {
+            logging!(warn, Type::Core, "failed to read OS proxy ownership: {error:#}");
+            None
+        }
+        Err(join_error) => {
+            logging!(warn, Type::Core, "failed to read OS proxy ownership: {join_error}");
+            None
+        }
+    }
+}
+
+/// Force only the kinds this app owns off, leaving the other kind untouched.
+async fn disable_owned_proxies(sys: Sysproxy, auto: Autoproxy, ownership: OsProxyOwnership) -> Result<()> {
+    tokio::task::spawn_blocking(move || {
+        let global = || skip_without_network_service(false, sys.set_system_proxy()).map(|_reached_os| ());
+        let pac = || skip_without_network_service(false, auto.set_auto_proxy()).map(|_reached_os| ());
+        match (ownership.global, ownership.pac) {
+            (true, true) => disable_both(global, pac),
+            (true, false) => global(),
+            (false, true) => pac(),
+            (false, false) => Ok(()),
+        }
+    })
+    .await?
+}
+
 /// Treat failed reads as different so writes are skipped only with proof.
 fn classify_os_proxy_state(snapshot: Result<bool>) -> OsProxyState {
     match snapshot {
@@ -374,12 +458,20 @@ impl Sysopt {
         earlier_step_completed: bool,
         guard_was_running: bool,
         off: (Sysproxy, Autoproxy),
+        scope: Option<OsProxyOwnership>,
     ) -> anyhow::Error {
+        let (off_sys, off_auto) = off;
         recover_from_failed_write(
             error,
             earlier_step_completed,
             |state| self.recover_guard_after_failure(state, guard_was_running),
-            || disable_all_proxies(off.0, off.1),
+            || async move {
+                match scope {
+                    // Compensating must not undo a proxy this app does not own.
+                    Some(ownership) => disable_owned_proxies(off_sys, off_auto, ownership).await,
+                    None => disable_all_proxies(off_sys, off_auto).await,
+                }
+            },
         )
         .await
     }
@@ -471,6 +563,37 @@ impl Sysopt {
         let idle = self.access_guard().read().shutdown();
         let drained = idle.wait_timeout(GUARD_DRAIN_TIMEOUT).await;
 
+        // The master switch is off, so nothing should be set in the OS — but
+        // "nothing should be" is not "whatever is there is ours". Read first and
+        // only clear our own entry: the OS may be carrying a proxy another app
+        // installed, and wiping it would cut that app's network.
+        let clear_scope = if sys_enable {
+            None
+        } else {
+            match current_os_proxy_ownership(sys.clone(), auto.clone()).await {
+                Some(ownership) if ownership.is_none() => {
+                    self.access_guard().write().set_guard_type(GuardType::None);
+                    logging!(
+                        debug,
+                        Type::Core,
+                        "system proxy is disabled in settings and the OS entry belongs to another app; leaving it untouched"
+                    );
+                    return Ok(());
+                }
+                // Unreadable OS state is not proof of ownership.
+                None => {
+                    self.access_guard().write().set_guard_type(GuardType::None);
+                    logging!(
+                        warn,
+                        Type::Core,
+                        "system proxy is disabled in settings but the OS state could not be read; leaving it untouched"
+                    );
+                    return Ok(());
+                }
+                ownership => ownership,
+            }
+        };
+
         // A slow guard does not stop the write, but it does make the OS read untrustworthy.
         if cfg!(target_os = "macos")
             && drained
@@ -480,7 +603,16 @@ impl Sysopt {
             return Ok(());
         }
 
-        let apply_steps = proxy_apply_steps(sys.enable, auto.enable);
+        let apply_steps: Vec<ProxyApplyStep> = proxy_apply_steps(sys.enable, auto.enable)
+            .into_iter()
+            .filter(|step| match clear_scope {
+                None => true,
+                Some(ownership) => match step {
+                    ProxyApplyStep::Sysproxy => ownership.global,
+                    ProxyApplyStep::Autoproxy => ownership.pac,
+                },
+            })
+            .collect();
 
         // Prepare the disabled state used to compensate a partial write.
         let compensation = {
@@ -511,14 +643,18 @@ impl Sysopt {
             Ok(Ok(())) => {}
             Ok(Err((earlier_step_completed, error))) => {
                 return Err(self
-                    .recover_from_failed_write(error, earlier_step_completed, guard_was_running, compensation)
+                    .recover_from_failed_write(
+                        error,
+                        earlier_step_completed,
+                        guard_was_running,
+                        compensation,
+                        clear_scope,
+                    )
                     .await);
             }
             Err(join_error) => {
                 let error = anyhow::Error::from(join_error).context("the system proxy write task did not finish");
-                return Err(self
-                    .recover_from_failed_write(error, false, guard_was_running, compensation)
-                    .await);
+                return Err(self.recover_from_failed_write(error, false, guard_was_running, compensation, clear_scope).await);
             }
         }
 

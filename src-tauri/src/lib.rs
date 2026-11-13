@@ -116,9 +116,15 @@ mod app_init {
     /// Setup window state management
     pub fn setup_window_state(app: &tauri::App) -> Result<(), Box<dyn std::error::Error>> {
         logging!(debug, Type::Setup, "初始化窗口状态管理...");
+        // Size and position are resolved from the monitor work area on every start, so
+        // they are deliberately not persisted; only the user's maximize/fullscreen
+        // intent survives a restart.
         let window_state_plugin = tauri_plugin_window_state::Builder::new()
             .with_filename(files::WINDOW_STATE)
-            .with_state_flags(tauri_plugin_window_state::StateFlags::default())
+            .with_state_flags(
+                tauri_plugin_window_state::StateFlags::MAXIMIZED
+                    | tauri_plugin_window_state::StateFlags::FULLSCREEN,
+            )
             .build();
         app.handle().plugin(window_state_plugin)?;
         Ok(())
@@ -271,7 +277,7 @@ pub fn run() -> std::process::ExitCode {
 
             #[cfg(target_os = "macos")]
             if let Some(window) = _app_handle.get_webview_window("main") {
-                let _ = window.set_title("Clash Verge");
+                let _ = window.set_title("ArClash");
             }
         }
 

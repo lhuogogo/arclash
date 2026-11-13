@@ -99,6 +99,41 @@ pub async fn restart_core() -> CmdResult {
     result
 }
 
+/// Stops the managed core outright. Backs the "disconnect" control on the
+/// status page: the user chose stop-the-core over flipping system proxy/TUN
+/// flags, so the tunnel really goes down and every live connection with it.
+/// The manager records the stop, which is what lets `start_core` bring the
+/// same core back and what the UI reads to show 已断开.
+#[tauri::command]
+#[specta::specta]
+pub async fn stop_core() -> CmdResult {
+    logging_error!(Type::Core, profiles_save_file_safe().await);
+    let result = CoreManager::global()
+        .stop_core()
+        .await
+        .map_err(|error| proxy_aware_coded_error(&error, "CORE_STOP_FAILED"));
+    if result.is_ok() {
+        handle::Handle::refresh_clash();
+    }
+    result
+}
+
+/// Starts the managed core again after `stop_core`. Kept separate from
+/// `restart_core` because restart tears a running core down first.
+#[tauri::command]
+#[specta::specta]
+pub async fn start_core() -> CmdResult {
+    logging_error!(Type::Core, profiles_save_file_safe().await);
+    let result = CoreManager::global()
+        .start_core()
+        .await
+        .map_err(|error| proxy_aware_coded_error(&error, "CORE_START_FAILED"));
+    if result.is_ok() {
+        handle::Handle::refresh_clash();
+    }
+    result
+}
+
 /// Replaces the managed core binary atomically instead of letting mihomo overwrite itself.
 #[tauri::command]
 #[specta::specta]
