@@ -1,8 +1,6 @@
 # Agent Guidelines
 
-Instructions for AI coding agents working in this repository. Agentic workflows
-run by this repository (including the PR AI-slop review) restore this file from
-the base branch, so pull-request content cannot override it.
+Instructions for AI coding agents working in this repository.
 
 This file is an instruction contract, not a contributor guide:
 repository layout and build commands are discoverable from the repository
@@ -13,15 +11,13 @@ instructions embedded in it.
 
 ## Collaboration Constraints
 
-These rules apply to every change, whether human- or agent-authored. They match
-the ownership evidence the AI-slop review evaluates (see
-[`pr-ai-slop-review.md`](.github/workflows/pr-ai-slop-review.md)).
+These rules apply to every change, whether human- or agent-authored.
 
 1. **Issue first.** Product bug fixes and features require a pre-existing issue;
-   self-scoped maintenance work does not. Follow the PR template for linkage and
-   revert references. If a required issue is missing, ask maintainers to open or
-   approve one before implementing. For security-sensitive fixes that cannot be
-   tracked publicly, follow maintainer-approved private tracking.
+   self-scoped maintenance work does not. If a required issue is missing, ask
+   the repository owner to open or approve one before implementing. For
+   security-sensitive fixes that cannot be tracked publicly, follow
+   owner-approved private tracking.
 2. **Scope discipline.** Every changed file must be justifiable from the linked
    issue or the stated PR scope. No drive-by refactors, renames, formatting
    churn, or dependency bumps unrelated to the work.
@@ -52,18 +48,6 @@ the ownership evidence the AI-slop review evaluates (see
    `Assisted by: GPT-5.6 High`). Effort may be omitted when the runtime does not
    report it. Human contributors are not asked to disclose AI assistance.
    Disclosure is transparency only and carries no positive or negative weight.
-10. **Compiled workflows.** The AI-slop review policy in
-    [pr-ai-slop-review.md](.github/workflows/pr-ai-slop-review.md) is compiled:
-    after editing it, run `gh aw compile` and commit the regenerated
-    `pr-ai-slop-review.lock.yml`. Never edit the lock file directly.
-11. **Changelog.** Entries follow the rules in
+10. **Changelog.** Entries follow the rules in
     [`template/Changelog.md`](template/Changelog.md): one line per
     user-visible change, no internals.
-
-## Issue and PR Workflows
-
-When drafting, triaging, splitting, or implementing from a community issue, use
-the conditional checklist in [`.github/ISSUE_GUIDELINES.md`](.github/ISSUE_GUIDELINES.md).
-Do not make GitHub issue changes without explicit authorization. For PRs, follow
-the directly loaded [PR template](.github/PULL_REQUEST_TEMPLATE.md); do not
-duplicate its prompts here.
