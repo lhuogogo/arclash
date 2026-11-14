@@ -446,7 +446,15 @@ const Layout = () => {
                       strokeWidth="1.8"
                       strokeLinecap="square"
                     >
-                      <path d="M1.5 1.5l7 7M8.5 1.5l-7 7" />
+                      {/* 断开态（「连 接」）画勾=去连接；已连接态（「断 开」）
+                          画叉=去断开（用户 11-14）。 */}
+                      <path
+                        d={
+                          tunnelUp
+                            ? 'M1.5 1.5l7 7M8.5 1.5l-7 7'
+                            : 'M1.5 5.4l2.5 2.5 4.4-5.6'
+                        }
+                      />
                     </svg>
                   </span>
                   <span className="ark-btn__cta-txt">

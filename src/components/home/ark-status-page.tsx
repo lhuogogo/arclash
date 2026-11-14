@@ -176,14 +176,20 @@ export const ArkStatusPage = ({
             {formatRate(traffic?.down)}
           </div>
           <div className="ark-strip__bar">
-            <i style={{ width: `${bars.downPct}%` }} />
+            <i
+              className={traffic?.down ? 'is-flowing' : undefined}
+              style={{ width: `${bars.downPct}%` }}
+            />
           </div>
         </div>
         <div className="ark-strip__cell">
           <div className="ark-strip__label">上行</div>
           <div className="ark-strip__num">{formatRate(traffic?.up)}</div>
           <div className="ark-strip__bar">
-            <i style={{ width: `${bars.upPct}%` }} />
+            <i
+              className={traffic?.up ? 'is-flowing' : undefined}
+              style={{ width: `${bars.upPct}%` }}
+            />
           </div>
         </div>
         <div className="ark-strip__cell">

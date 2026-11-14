@@ -10,7 +10,8 @@ import {
 } from '@mui/icons-material'
 import { Box, ButtonGroup, IconButton, Typography } from '@mui/material'
 import { useLockFn } from 'ahooks'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, startTransition } from 'react'
+import { ViewTransition } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { BasePage } from '@/components/base'
@@ -21,7 +22,6 @@ import SettingVergeBasic from '@/components/setting/setting-verge-basic'
 import { exitApp } from '@/services/cmds'
 import { mutate } from '@/services/mutate'
 import { showNotice } from '@/services/notice-service'
-import { useThemeMode } from '@/services/states'
 import { openExternalUrl } from '@/utils/open-external-url'
 import { version } from '@root/package.json'
 
@@ -69,9 +69,6 @@ const SettingPage = () => {
     }).catch(() => {})
   })
 
-  const mode = useThemeMode()
-  const isDark = mode === 'light' ? false : true
-
   // Nav labels are two characters (user, 11-14); the section banners keep the
   // full names, so the buttons use dedicated short keys.
   const navItems = [
@@ -103,7 +100,9 @@ const SettingPage = () => {
               padding: '7px 22px',
               mr: 1.5,
               cursor: 'pointer',
+              transition: 'transform 0.08s ease-out',
               '&:hover': { borderColor: 'var(--ark-accent)' },
+              '&:active': { transform: 'scale(0.97)' },
             }}
           >
             {t('settings.page.actions.resetSettings')}
@@ -166,7 +165,7 @@ const SettingPage = () => {
               <Box
                 key={item.key}
                 component="button"
-                onClick={() => setSection(item.key)}
+                onClick={() => startTransition(() => setSection(item.key))}
                 sx={{
                   appearance: 'none',
                   display: 'flex',
@@ -175,21 +174,25 @@ const SettingPage = () => {
                   gap: '10px',
                   padding: '0 12px',
                   height: 54,
-                  fontSize: 15,
+                  fontSize: 17,
                   fontWeight: 700,
                   letterSpacing: 1,
-                  color: active ? 'var(--ark-text, #fff)' : 'var(--ark-text-2)',
-                  backgroundColor: active ? 'var(--ark-panel)' : 'var(--ark-seg)',
-                  border: '1px solid',
-                  borderColor: active ? 'var(--ark-accent)' : 'var(--ark-border)',
-                  boxShadow: active
-                    ? 'inset 2px 0 0 var(--ark-accent) !important'
-                    : 'none !important',
+                  color: active
+                    ? 'var(--ark-inv-text)'
+                    : 'var(--ark-text-2)',
+                  backgroundColor: active
+                    ? 'var(--ark-inv-bg)'
+                    : 'var(--ark-seg)',
+                  border: '1px solid var(--ark-border)',
                   cursor: 'pointer',
-                  '&:hover': { color: 'var(--ark-text, #fff)' },
+                  transition: 'transform 0.08s ease-out',
+                  '&:hover': { color: 'var(--ark-inv-text)' },
+                  '&:active': { transform: 'scale(0.97)' },
                 }}
               >
-                {item.icon}
+                <Box component="span" sx={{ ml: '-4px', display: 'inline-flex' }}>
+                  {item.icon}
+                </Box>
                 {item.label}
               </Box>
             )
@@ -209,17 +212,19 @@ const SettingPage = () => {
               padding: '0 12px',
               height: 48,
               mt: '4px',
-              fontSize: 14,
+              fontSize: 17,
               fontWeight: 700,
               letterSpacing: 1,
               color: 'var(--ark-warn)',
               backgroundColor: 'var(--ark-seg)',
               border: '1px solid rgba(255, 96, 24, 0.35)',
               cursor: 'pointer',
+              transition: 'transform 0.08s ease-out',
               '&:hover': {
                 borderColor: 'var(--ark-warn)',
                 backgroundColor: 'rgba(255, 96, 24, 0.08)',
               },
+              '&:active': { transform: 'scale(0.97)' },
             }}
           >
             <PowerSettingsNewRounded />
@@ -244,7 +249,7 @@ const SettingPage = () => {
             flex: 1,
             minWidth: 0,
             borderRadius: 2,
-            backgroundColor: isDark ? '#373737' : '#ffffff',
+            backgroundColor: 'var(--ark-panel)',
             padding: '14px 20px 24px',
             overflow: 'auto',
             // Fixed viewport height: switching sections swaps content inside a
@@ -254,10 +259,17 @@ const SettingPage = () => {
             minHeight: 380,
           }}
         >
-          {section === 'system' && <SettingSystem onError={onError} />}
-          {section === 'basic' && <SettingVergeBasic onError={onError} />}
-          {section === 'theme' && <SettingTheme onError={onError} />}
-          {section === 'advanced' && <SettingVergeAdvanced onError={onError} />}
+          {/* D1 (user, 11-14): the section swap cross-fades inside the fixed
+              frame; the nav and banners stay still. `ark-fade` caps the browser
+              default at 180ms. */}
+          <ViewTransition enter="ark-fade" exit="ark-fade">
+            {section === 'system' && <SettingSystem onError={onError} />}
+            {section === 'basic' && <SettingVergeBasic onError={onError} />}
+            {section === 'theme' && <SettingTheme onError={onError} />}
+            {section === 'advanced' && (
+              <SettingVergeAdvanced onError={onError} />
+            )}
+          </ViewTransition>
         </Box>
       </Box>
     </BasePage>

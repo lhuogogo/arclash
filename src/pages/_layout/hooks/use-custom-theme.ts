@@ -80,6 +80,12 @@ export const useCustomTheme = () => {
     }
   }, [theme_mode, setMode])
 
+  // The ark skin reads html[data-ark-theme] to switch its --ark-* palette;
+  // without this the MUI layer flips but the skin stays dark (user, 11-14).
+  useEffect(() => {
+    document.documentElement.dataset.arkTheme = mode
+  }, [mode])
+
   useEffect(() => {
     if (theme_mode !== 'system') {
       return

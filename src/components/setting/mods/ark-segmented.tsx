@@ -59,6 +59,13 @@ export const ArkSegmented = ({
                 whiteSpace: 'nowrap',
                 cursor: disabled ? 'not-allowed' : 'pointer',
                 opacity: disabled ? 0.45 : 1,
+                transition: 'background 0.1s ease-out, transform 0.08s ease-out',
+                '&:active': {
+                  transform: 'scale(0.95)',
+                  backgroundColor: selected
+                    ? 'var(--ark-accent)'
+                    : 'var(--ark-panel-hover, #414141)',
+                },
                 '&:hover': {
                   color: selected ? '#fff' : 'var(--ark-text)',
                 },

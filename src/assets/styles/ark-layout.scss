@@ -67,6 +67,7 @@
   letter-spacing: 0.5px;
   color: var(--ark-text, #fff);
   font-variant-numeric: tabular-nums;
+  font-family: "Cascadia Mono", Consolas, monospace;
 }
 
 .ark-rail__uptime-label {
@@ -294,7 +295,7 @@
     calc(100% - var(--cut)) 100%,
     0 100%
   );
-  transition: background 0.12s ease-out;
+  transition: background 0.12s ease-out, transform 0.1s ease-out;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -331,6 +332,17 @@
 
 .ark-btn:hover > .ark-btn__surface {
   background: var(--ark-panel-hover, #414141);
+}
+
+// 按压（用户 11-14）：scale + 提亮，100ms 回弹。transform 不受
+// `box-shadow: none !important` 影响，可直接用。
+.ark-btn:active {
+  background: var(--ark-accent, #19b4e2);
+  transform: scale(0.97);
+}
+
+.ark-btn:active > .ark-btn__surface {
+  background: var(--ark-panel-2, #3d3d3d);
 }
 
 .ark-btn.is-active {
@@ -410,6 +422,7 @@
   font-size: 10px;
   color: var(--ark-text-2, #9a9a9a);
   font-variant-numeric: tabular-nums;
+  font-family: "Cascadia Mono", Consolas, monospace;
 }
 
 // The surface is a flex column and the short blocks (proxy pair, traffic pair)
@@ -470,6 +483,7 @@
   letter-spacing: 0.5px;
   color: var(--ark-text, #fff);
   font-variant-numeric: tabular-nums;
+  font-family: "Cascadia Mono", Consolas, monospace;
   white-space: nowrap;
 }
 
@@ -560,6 +574,7 @@
   letter-spacing: 0.2px;
   color: var(--ark-text, #fff);
   white-space: nowrap;
+  font-family: "Cascadia Mono", Consolas, monospace;
 }
 
 .ark-btn__ip-addr {
@@ -655,11 +670,16 @@
   border: 0;
   cursor: pointer;
   font: inherit;
-  transition: background 0.12s ease-out;
+  transition: background 0.12s ease-out, transform 0.1s ease-out;
 }
 
 .ark-btn__cta:hover {
   background: var(--ark-panel-2, #444);
+}
+
+.ark-btn__cta:active {
+  transform: scale(0.97);
+  background: var(--ark-panel-hover, #4a4a4a);
 }
 
 .ark-btn__cta.is-raid {
@@ -726,6 +746,7 @@
   line-height: 1;
   color: var(--ark-text, #fff);
   font-variant-numeric: tabular-nums;
+  font-family: "Cascadia Mono", Consolas, monospace;
 }
 
 .ark-cols__l {
@@ -756,6 +777,7 @@
   line-height: 1;
   letter-spacing: -0.5px;
   font-variant-numeric: tabular-nums;
+  font-family: "Cascadia Mono", Consolas, monospace;
   color: var(--ark-text, #fff);
 }
 
@@ -807,6 +829,7 @@
   font-weight: 900;
   line-height: 1.1;
   font-variant-numeric: tabular-nums;
+  font-family: "Cascadia Mono", Consolas, monospace;
   color: var(--ark-text, #fff);
 }
 

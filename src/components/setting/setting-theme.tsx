@@ -92,7 +92,11 @@ const SettingTheme = ({ onError }: Props) => {
           onChange={(e) => onChangeData({ language: e })}
           onGuard={(e) => patchVerge({ language: e })}
         >
-          <Select size="small" sx={{ width: 110, '> div': { py: '7.5px' } }}>
+          <Select
+            size="small"
+            sx={{ width: 110, '> div': { py: '7.5px' } }}
+            MenuProps={{ anchorOrigin: { vertical: 'center', horizontal: 'center' }, transformOrigin: { vertical: 'center', horizontal: 'center' } }}
+          >
             {languageOptions.map(({ code, label }) => (
               <MenuItem key={code} value={code}>
                 {label}

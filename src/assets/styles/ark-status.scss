@@ -179,6 +179,31 @@
   background: var(--ark-accent);
 }
 
+// E2 (user, 11-14): while traffic flows, the down/up bars carry a drifting
+// hatch so the data surface reads alive; the animation runs only with the
+// is-flowing class, so a zero-rate bar (width 0) neither shows nor moves.
+// background-position is the only animated property — no shadows involved.
+.ark-strip__bar > i.is-flowing {
+  background: repeating-linear-gradient(
+    90deg,
+    var(--ark-accent) 0 6px,
+    rgba(25, 180, 226, 0.35) 6px 12px
+  );
+  animation: ark-strip-flow 1.6s linear infinite;
+}
+
+@keyframes ark-strip-flow {
+  to {
+    background-position: 12px 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ark-strip__bar > i.is-flowing {
+    animation: none;
+  }
+}
+
 // ---------- Session facts ----------
 .ark-info {
   display: grid;
@@ -467,5 +492,23 @@
   ::view-transition-old(.hint-pop-out),
   ::view-transition-new(.hint-pop) {
     animation: none !important;
+  }
+}
+
+
+// ---------- D1: section-switch cross-fade (user, 11-14) ----------
+// The settings panel's <ViewTransition enter/exit="ark-fade"> swaps content
+// with a quick cross-fade; 180ms keeps it a feedback blink, not a show.
+::view-transition-old(.ark-fade),
+::view-transition-new(.ark-fade) {
+  animation-duration: 0.18s;
+  animation-timing-function: ease-out;
+}
+
+// Reduced motion: instant swap, no fade.
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(.ark-fade),
+  ::view-transition-new(.ark-fade) {
+    animation: none;
   }
 }

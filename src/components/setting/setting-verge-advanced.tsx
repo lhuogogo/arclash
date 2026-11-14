@@ -1,6 +1,6 @@
 import { ContentCopyRounded } from '@mui/icons-material'
-import { Box, Menu, MenuItem, Typography } from '@mui/material'
-import { useCallback, useRef, useState } from 'react'
+import { MenuItem, Select, Typography } from '@mui/material'
+import { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { TooltipIcon } from '@/components/base'
@@ -22,15 +22,13 @@ interface Props {
   onError?: (err: Error) => void
 }
 
-const SettingVergeAdvanced = ({ onError: _ }: Props) => {
+const SettingVergeAdvanced = ({ onError: _onError }: Props) => {
   const { t } = useTranslation()
   const { version: coreVersion } = useClash()
 
-  // The three directory rows collapsed into one entry (user, 11-13): they were
-  // three separate lines of the same rare navigation. The menu anchors to the
-  // wrapper because SettingItem does not forward a ref.
-  const dirRowRef = useRef<HTMLDivElement>(null)
-  const [dirMenuOpen, setDirMenuOpen] = useState(false)
+  // The three directory rows collapsed into one entry (user, 11-13); the
+  // dropdown keeps a value only so the popup form matches the language row.
+  const [dirChoice, setDirChoice] = useState('conf')
 
   const onExportDiagnosticInfo = useCallback(async () => {
     await mutate(() => exportDiagnosticInfo(), {
@@ -48,11 +46,6 @@ const SettingVergeAdvanced = ({ onError: _ }: Props) => {
       )
     })
   }, [])
-
-  const pickDir = (open: () => unknown) => {
-    setDirMenuOpen(false)
-    void open()
-  }
 
   return (
     <SettingList title={t('settings.components.verge.advanced.title')}>
@@ -73,29 +66,39 @@ const SettingVergeAdvanced = ({ onError: _ }: Props) => {
         <Typography sx={{ py: '7px', pr: 1 }}>{coreVersion}</Typography>
       </SettingItem>
 
-      <Box ref={dirRowRef}>
-        <SettingItem
-          onClick={() => setDirMenuOpen(true)}
-          label={t('settings.components.verge.advanced.fields.openDirMenu')}
-          note={t('settings.components.verge.advanced.tooltips.openConfDir')}
-        />
-      </Box>
-
-      <Menu
-        anchorEl={dirRowRef.current}
-        open={dirMenuOpen}
-        onClose={() => setDirMenuOpen(false)}
+      {/* Same popup form as the language row (user, 11-14): the row shows the
+          chosen folder name and opens the dropdown in place, replacing the
+          floating Menu that anchored off the row. */}
+      <SettingItem
+        label={t('settings.components.verge.advanced.fields.openDirMenu')}
+        note={t('settings.components.verge.advanced.tooltips.openConfDir')}
       >
-        <MenuItem onClick={() => pickDir(openAppDir)}>
-          {t('settings.components.verge.advanced.fields.openConfDir')}
-        </MenuItem>
-        <MenuItem onClick={() => pickDir(openCoreDir)}>
-          {t('settings.components.verge.advanced.fields.openCoreDir')}
-        </MenuItem>
-        <MenuItem onClick={() => pickDir(openLogsDir)}>
-          {t('settings.components.verge.advanced.fields.openLogsDir')}
-        </MenuItem>
-      </Menu>
+      {/* No GuardState: this is a launcher, not a persisted setting — the
+          dropdown keeps its label and fires the matching opener. */}
+          <Select
+            size="small"
+            value={dirChoice}
+            sx={{ width: 130, '> div': { py: '7.5px' } }}
+            MenuProps={{ anchorOrigin: { vertical: 'center', horizontal: 'center' }, transformOrigin: { vertical: 'center', horizontal: 'center' } }}
+            onChange={(e) => {
+              const choice = e.target.value as string
+              setDirChoice(choice)
+              if (choice === 'conf') void openAppDir()
+              if (choice === 'core') void openCoreDir()
+              if (choice === 'logs') void openLogsDir()
+            }}
+          >
+            <MenuItem value="conf">
+              {t('settings.components.verge.advanced.fields.openConfDir')}
+            </MenuItem>
+            <MenuItem value="core">
+              {t('settings.components.verge.advanced.fields.openCoreDir')}
+            </MenuItem>
+            <MenuItem value="logs">
+              {t('settings.components.verge.advanced.fields.openLogsDir')}
+            </MenuItem>
+          </Select>
+      </SettingItem>
 
       <SettingItem
         onClick={() => {

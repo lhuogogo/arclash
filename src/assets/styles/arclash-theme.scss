@@ -21,19 +21,66 @@
   --ark-bg: #2d2e2e; // 主背景
   --ark-panel: #373737; // 面板
   --ark-panel-alt: #333434; // 面板次级
+  --ark-panel-2: #3d3d3d;
+  --ark-panel-3: #3a3a3a;
+  --ark-panel-hover: #414141;
   --ark-banner: #262727; // 分区标题横幅，比面板深一档（设置页方舟化）
   --ark-seg: #3a3b3b; // 分段按钮未选中底 / 矩形开关关闭底（设置页方舟化）
+  --ark-well: #1e1f1f; // 内嵌深槽（统计卡/内核块）
   --ark-accent: #19b4e2; // 强调青（唯一强调色；面板底 5.62 / 控件底 4.91，AA 达标）
   --ark-warn: #ff6018; // 警示橙（只做状态色）
+  --ark-raid: #ff8a7a; // 突袭红
+  --ark-text: #fff; // 主文字
   --ark-text-2: #9a9a9a; // 次文字
+  --ark-text-3: #a8a8a8;
   --ark-border: rgba(255, 255, 255, 0.1); // 边框
   --ark-divider: rgba(255, 255, 255, 0.08); // 分割线
+
+  // 反色选中（甲，用户 11-14）：分区按钮选中=反色。深色下白底黑字，
+  // 浅色分支自动翻成黑底白字——组件只引用变量，不写死色值。
+  --ark-inv-bg: #fff;
+  --ark-inv-text: #1d1d1d;
+  // 开关白块（乙复验退回项）：浅槽 #e4e4e4 与 #e9e9e9 只差 5 个灰阶，
+  // 白块会隐形——变量化后浅色用纯白并靠描边分界。
+  --ark-knob: #e9e9e9;
 
   // 覆盖上游变量，让既有样式自动跟随
   --border-radius: 0px !important;
   --divider-color: var(--ark-divider) !important;
   --background-color: var(--ark-bg) !important;
   --scroller-color: #4a4a4a !important;
+}
+
+// ---------- 浅色分支（用户 11-14） ----------
+// 皮肤层此前只有深色一套，点「浅色」只有 MUI 文字层翻黑、背景死守深色。
+// html[data-ark-theme='light'] 整体切 --ark-* 全套：浅灰纸面、深色文字、
+// 青色 accent 保留、边框换深色低透明度。矩形硬边/纯色基调不变。
+// 深色值一行不动。
+html[data-ark-theme='light'] {
+  --ark-bg: #ececec;
+  --ark-panel: #f7f7f7;
+  --ark-panel-alt: #f0f0f0;
+  --ark-panel-2: #e2e2e2;
+  --ark-panel-3: #e6e6e6;
+  --ark-panel-hover: #dcdcdc;
+  --ark-banner: #dcdcdc;
+  --ark-seg: #e4e4e4;
+  --ark-well: #e0e0e0;
+  --ark-accent: #19b4e2;
+  --ark-warn: #ff6018;
+  --ark-raid: #e25a4d;
+  --ark-text: #1d1d1d;
+  --ark-text-2: #5f5f5f;
+  --ark-text-3: #6b6b6b;
+  --ark-border: rgba(0, 0, 0, 0.14);
+  --ark-divider: rgba(0, 0, 0, 0.09);
+  --ark-inv-bg: #1d1d1d;
+  --ark-inv-text: #fff;
+  --ark-knob: #ffffff;
+
+  --divider-color: var(--ark-divider) !important;
+  --background-color: var(--ark-bg) !important;
+  --scroller-color: #b5b5b5 !important;
 }
 
 // ---------- 1. 全局矩形硬边 ----------

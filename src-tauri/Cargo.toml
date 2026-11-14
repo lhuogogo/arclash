@@ -1,6 +1,6 @@
 [package]
 name = "arclash"
-version = "2.5.10"
+version = "0.1.2"
 description = "arclash"
 authors = ["zzzgydi", "Tunglies", "wonfen", "MystiPanda"]
 license = "GPL-3.0-only"
